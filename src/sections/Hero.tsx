@@ -7,8 +7,8 @@ export default function Hero() {
   const handleScroll = () => {
   const elemento = document.getElementById('method');
   if (elemento) {
-    elemento.scrollIntoView();
-  }
+      elemento.scrollIntoView();
+    }
   };
   return (
     <section className="relative w-full min-h-[100dvh] bg-[#0D0D0D] overflow-hidden flex items-center" id="hero">
@@ -52,7 +52,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
             className="flex flex-col sm:flex-row items-center gap-5 mt-6 w-full sm:w-auto"
           >
-            <Button className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto" onClick={() => window.open("https://wa.me/556196550552?text=Olá! Vim pelo site e gostaria de solicitar meu diagnóstico de escala.", "_blank")}>
               Solicitar Diagnóstico de Escala
             </Button>
             <Button onClick={handleScroll}  variant="ghost" className="w-full sm:w-auto">
