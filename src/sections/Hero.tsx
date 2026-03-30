@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Button } from "@/componentes/Button"
+import { Button } from "@/components/Button"
 
 export default function Hero() {
   return (

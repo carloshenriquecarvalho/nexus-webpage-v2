@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Crosshair, ChartLineUp, HardDrives } from "@phosphor-icons/react"
-import { BlueprintCard } from "@/componentes/BlueprintCard"
+import { BlueprintCard } from "@/components/BlueprintCard"
 
 const features = [
   {

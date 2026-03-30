@@ -2,7 +2,7 @@
 
 import { motion, Variants } from "framer-motion"
 import { Crosshair, Aperture, Lightning, TrendUp } from "@phosphor-icons/react"
-import { ServiceCard } from "@/componentes/ServiceCard"
+import { ServiceCard } from "@/components/ServiceCard"
 
 const services = [
   {

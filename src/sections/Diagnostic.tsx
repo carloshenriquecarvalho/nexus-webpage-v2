@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight, ArrowLeft, CheckCircle } from "@phosphor-icons/react"
-import { Button } from "@/componentes/Button"
+import { Button } from "@/components/Button"
 
 // 1. Variantes otimizadas: 'tween' é mais leve que 'spring' para mobile.
 // Reduzi o deslocamento (x) para evitar repaints excessivos no Glassmorphism.
