@@ -36,7 +36,6 @@ export default function Commitment() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-white text-4xl md:text-5xl lg:text-[4rem] font-bold tracking-tighter leading-[1.05]"
           >
-            Não somos uma agência de esperança. <br className="hidden md:block" />
             Somos uma unidade de implementação.
           </motion.h2>
           

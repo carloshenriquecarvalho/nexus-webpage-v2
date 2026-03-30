@@ -16,7 +16,7 @@ const variants = {
     x: 0,
     opacity: 1,
     transition: {
-      x: { type: "tween", duration: 0.3, ease: "easeOut" },
+      x: { type: "tween" as const, duration: 0.3 },
       opacity: { duration: 0.2 }
     }
   },
@@ -24,7 +24,7 @@ const variants = {
     x: direction < 0 ? 15 : -15,
     opacity: 0,
     transition: {
-      x: { type: "tween", duration: 0.2, ease: "easeIn" },
+      x: { type: "tween" as const, duration: 0.2 },
       opacity: { duration: 0.2 }
     }
   })
@@ -144,25 +144,25 @@ export default function Diagnostic() {
                     <div className="flex flex-col gap-8 w-full">
                       <div className="flex flex-col gap-2">
                         <span className="text-[#F24639] text-sm font-bold tracking-wide uppercase">Etapa 01 de 04</span>
-                        <h3 className="text-white text-2xl font-bold tracking-tight">O Raio-X Inicial</h3>
+                        <h3 className="text-white text-2xl font-bold tracking-tight">Diagnóstico rápido</h3>
                       </div>
                       <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
-                           <label className="text-white/60 text-sm font-medium">Nome Oficial da Clínica / Operação</label>
+                           <label className="text-white/60 text-sm font-medium">Nome da clínica (opcional)</label>
                            <input 
                              type="text" 
-                             placeholder="Digite o nome da empresa..."
+                             placeholder="Digite o nome da clínica..."
                              value={formData.nomeClinica}
                              onChange={(e) => setFormData(prev => ({...prev, nomeClinica: e.target.value}))}
                              className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#F22471]/50 transition-all"
                            />
                         </div>
                         <div className="flex flex-col gap-3">
-                           <label className="text-white/60 text-sm font-medium">Faturamento Médio Mensal</label>
+                           <label className="text-white/60 text-sm font-medium">Quantas consultas sua clínica precisa por mês?</label>
                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                              <OptionCard field="faturamento" value="< 50k" label="Até R$ 50k" />
-                              <OptionCard field="faturamento" value="50k-150k" label="R$ 50k - 150k" />
-                              <OptionCard field="faturamento" value="> 150k" label="Acima de 150k" />
+                              <OptionCard field="faturamento" value="10-20" label="10-20" />
+                              <OptionCard field="faturamento" value="21-35" label="21-35" />
+                              <OptionCard field="faturamento" value="36+" label="36+" />
                            </div>
                         </div>
                       </div>
@@ -176,11 +176,11 @@ export default function Diagnostic() {
                         <h3 className="text-white text-2xl font-bold tracking-tight">Qual é a dor atual?</h3>
                       </div>
                       <div className="flex flex-col gap-3">
-                        <label className="text-white/60 text-sm font-medium">Principal gargalo tecnológico ou comercial:</label>
+                        <label className="text-white/60 text-sm font-medium">Qual é o maior problema hoje?</label>
                         <div className="flex flex-col gap-3 mt-2">
-                          <OptionCard field="gargalo" value="falta_leads" label="Falta de Volume de Leads." />
-                          <OptionCard field="gargalo" value="leads_sujos" label="Leads curiosos/desqualificados." />
-                          <OptionCard field="gargalo" value="agenda_vazia" label="Dificuldade em converter em CRM." />
+                          <OptionCard field="gargalo" value="agenda_vazia" label="Agenda vazia" />
+                          <OptionCard field="gargalo" value="leads_fracos" label="Muitos leads que não convertem" />
+                          <OptionCard field="gargalo" value="sem_tempo" label="Sem tempo para cuidar do marketing" />
                         </div>
                       </div>
                     </div>
@@ -193,11 +193,11 @@ export default function Diagnostic() {
                         <h3 className="text-white text-2xl font-bold tracking-tight">Capacidade Escalar</h3>
                       </div>
                       <div className="flex flex-col gap-3">
-                        <label className="text-white/60 text-sm font-medium">Investimento mensal disposto para Mídia:</label>
+                        <label className="text-white/60 text-sm font-medium">Quanto você já investe ou está disposto a investir em tráfego?</label>
                         <div className="flex flex-col gap-3 mt-2">
-                          <OptionCard field="investimento" value="iniciante" label="R$ 2.000 a R$ 5.000 / mês" />
-                          <OptionCard field="investimento" value="mediano" label="R$ 5.000 a R$ 15.000 / mês" />
-                          <OptionCard field="investimento" value="avancado" label="+ R$ 15.000 / mês" />
+                          <OptionCard field="investimento" value="ate_5000" label="Até R$5.000" />
+                          <OptionCard field="investimento" value="5000_15000" label="R$5.000-R$15.000" />
+                          <OptionCard field="investimento" value="acima_15000" label="Acima de R$15.000" />
                         </div>
                       </div>
                     </div>
@@ -207,7 +207,7 @@ export default function Diagnostic() {
                     <div className="flex flex-col gap-8 w-full">
                       <div className="flex flex-col gap-2">
                         <span className="text-[#F24639] text-sm font-bold tracking-wide uppercase">Etapa 04 de 04</span>
-                        <h3 className="text-white text-2xl font-bold tracking-tight">Contato do Diretor</h3>
+                        <h3 className="text-white text-2xl font-bold tracking-tight">Melhor contato para você</h3>
                       </div>
                       <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
@@ -242,7 +242,7 @@ export default function Diagnostic() {
               {step > 1 ? (
                 <button 
                   onClick={prevStep}
-                  className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors"
+                  className="cursor-pointer inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors"
                 >
                   <ArrowLeft weight="bold" />
                   <span className="font-medium text-sm">Voltar</span>
@@ -252,13 +252,13 @@ export default function Diagnostic() {
               {step < 4 ? (
                 <button 
                   onClick={nextStep}
-                  className="inline-flex items-center gap-2 text-white bg-white/10 hover:bg-white/20 px-6 py-3 rounded-xl font-medium transition-all"
+                  className="cursor-pointer inline-flex items-center gap-2 text-white bg-white/10 hover:bg-white/20 px-6 py-3 rounded-xl font-medium transition-all"
                 >
                   <span>Continuar</span>
                   <ArrowRight weight="bold" />
                 </button>
               ) : (
-                <Button className="gap-2 text-sm md:text-base py-4 px-6 md:px-8 shadow-[0_0_35px_-5px_#F22471]">
+                <Button className="inline-flex items-center gap-2 text-sm md:text-base py-3 px-6 md:px-8 shadow-[0_0_35px_-5px_#F22471]">
                   <CheckCircle weight="fill" className="w-5 h-5" />
                   Enviar Diagnóstico
                 </Button>

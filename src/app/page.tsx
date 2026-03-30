@@ -13,7 +13,7 @@ export default function Home() {
         <div className="liquid-glass px-4 py-3 rounded-2xl pointer-events-auto flex items-center justify-center">
           <img src="/logo-branca.png" alt="Nexus Branca" className="h-6 w-auto object-contain" />
         </div>
-        <button className="liquid-glass text-[var(--foreground)] px-6 py-2 rounded-full font-medium pointer-events-auto hover:bg-white/20 transition-colors">
+        <button className="cursor-pointer liquid-glass text-[var(--foreground)] px-6 py-2 rounded-full font-medium pointer-events-auto hover:bg-white/20 transition-colors">
           Menu
         </button>
       </nav>
