@@ -1,28 +1,32 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight, ArrowLeft, CheckCircle } from "@phosphor-icons/react"
 import { Button } from "@/componentes/Button"
 
-// Definindo as animações para transição das etapas do formulário
+// 1. Variantes otimizadas: 'tween' é mais leve que 'spring' para mobile.
+// Reduzi o deslocamento (x) para evitar repaints excessivos no Glassmorphism.
 const variants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 40 : -40,
+    x: direction > 0 ? 15 : -15,
     opacity: 0,
-    position: 'absolute' as any
   }),
   center: {
-    zIndex: 1,
     x: 0,
     opacity: 1,
-    position: 'relative' as any
+    transition: {
+      x: { type: "tween", duration: 0.3, ease: "easeOut" },
+      opacity: { duration: 0.2 }
+    }
   },
   exit: (direction: number) => ({
-    zIndex: 0,
-    x: direction < 0 ? 40 : -40,
+    x: direction < 0 ? 15 : -15,
     opacity: 0,
-    position: 'absolute' as any
+    transition: {
+      x: { type: "tween", duration: 0.2, ease: "easeIn" },
+      opacity: { duration: 0.2 }
+    }
   })
 }
 
@@ -30,7 +34,6 @@ export default function Diagnostic() {
   const [step, setStep] = useState(1)
   const [direction, setDirection] = useState(1)
   
-  // Estado para armazenar respostas simuladas
   const [formData, setFormData] = useState({
     nomeClinica: "",
     faturamento: "",
@@ -40,22 +43,25 @@ export default function Diagnostic() {
     email: ""
   })
 
-  const nextStep = () => {
+  // 2. Memoização para evitar cálculos de layout desnecessários a cada render
+  const nextStep = useCallback(() => {
     setDirection(1)
     setStep(s => s + 1)
-  }
+  }, [])
 
-  const prevStep = () => {
+  const prevStep = useCallback(() => {
     setDirection(-1)
     setStep(s => s - 1)
-  }
+  }, [])
 
-  // Opções customizadas de rádio
+  const progressScale = useMemo(() => step / 4, [step])
+
+  // Componente de Opção Refatorado para evitar re-renders pesados
   const OptionCard = ({ field, value, label }: { field: keyof typeof formData, value: string, label: string }) => {
     const isSelected = formData[field] === value
     return (
       <div 
-        onClick={() => setFormData({ ...formData, [field]: value })}
+        onClick={() => setFormData(prev => ({ ...prev, [field]: value }))}
         className={`flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer ${
           isSelected 
             ? "bg-[#F22471]/10 border-[#F22471] shadow-[0_0_15px_rgba(242,36,113,0.15)]" 
@@ -77,15 +83,15 @@ export default function Diagnostic() {
   return (
     <section className="relative w-full py-32 md:py-48 bg-[#0D0D0D] overflow-hidden flex justify-center">
       
-      {/* Aura Subliminar no Centro (Conceito de Filtro de Poder) */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#F24639] to-[#F22471] rounded-full blur-[150px] opacity-15 pointer-events-none" />
+      {/* Aura Subliminar com Hardware Acceleration */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#F24639] to-[#F22471] rounded-full blur-[150px] opacity-15 pointer-events-none [will-change:transform]" />
 
       <div className="relative z-10 w-full max-w-[1400px] px-6 md:px-12 flex flex-col lg:flex-row items-start gap-16 lg:gap-24">
         
-        {/* Copywriting de Filtro (Esquerda) */}
+        {/* Copywriting (Lado Esquerdo) */}
         <div className="w-full lg:w-[45%] flex flex-col gap-6 pt-8">
           <motion.div 
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 text-[10px] uppercase font-bold tracking-[0.2em] text-white/50 w-fit"
@@ -94,195 +100,144 @@ export default function Diagnostic() {
             Diagnóstico de Viabilidade
           </motion.div>
           
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1, duration: 0.8 }}
-            className="text-white text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-[1.05]"
-          >
+          <h2 className="text-white text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-[1.05]">
             Sua operação está <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F24639] to-[#F22471]">pronta para o próximo nível?</span>
-          </motion.h2>
+          </h2>
 
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-white/70 text-base md:text-lg leading-relaxed max-w-[45ch]"
-          >
-            Não aceitamos todos os projetos. Analisamos detalhadamente a maturidade da sua clínica para garantir que nossa engenharia de growth gere o ROI que exigimos. 
-            Preencha o diagnóstico e receba um retorno de viabilidade em até 12 horas.
-          </motion.p>
+          <p className="text-white/70 text-base md:text-lg leading-relaxed max-w-[45ch]">
+            Analisamos detalhadamente a maturidade da sua clínica para garantir que nossa engenharia de growth gere o ROI que exigimos.
+          </p>
         </div>
 
-        {/* Multi-step Form Component (Direita) */}
+        {/* Form Container (Lado Direito) */}
         <div className="w-full lg:w-[55%] relative">
-          
-          {/* Caixa de Vidro Premium do Formulário */}
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="w-full bg-[#121212]/80 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden relative"
+            transition={{ duration: 0.6 }}
+            className="w-full bg-[#121212]/90 border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden relative lg:backdrop-blur-2xl"
           >
-            {/* ProgressBar */}
-            <div className="w-full h-1 bg-white/5 rounded-full mb-10 overflow-hidden">
+            {/* ProgressBar: Animando scaleX (GPU) em vez de width (Layout) */}
+            <div className="w-full h-1 bg-white/5 rounded-full mb-10 relative overflow-hidden">
               <motion.div 
-                className="h-full bg-gradient-to-r from-[#F24639] to-[#F22471]"
-                initial={{ width: "25%" }}
-                animate={{ width: `${(step / 4) * 100}%` }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
+                className="absolute inset-0 bg-gradient-to-r from-[#F24639] to-[#F22471] origin-left"
+                initial={{ scaleX: 0.25 }}
+                animate={{ scaleX: progressScale }}
+                transition={{ duration: 0.4, ease: "circOut" }}
               />
             </div>
 
-            <div className="relative overflow-hidden min-h-[350px]">
+            {/* Container de transição com isolamento de pintura */}
+            <div className="relative min-h-[400px] md:min-h-[350px] [contain:paint]">
               <AnimatePresence initial={false} custom={direction} mode="wait">
-                
-                {/* ETAPA 1 */}
-                {step === 1 && (
-                  <motion.div
-                    key="step1"
-                    custom={direction}
-                    variants={variants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className="flex flex-col gap-8 w-full"
-                  >
-                    <div className="flex flex-col gap-2">
-                      <span className="text-[#F24639] text-sm font-bold tracking-wide">ETAPA 01 DE 04</span>
-                      <h3 className="text-white text-2xl font-bold tracking-tight">O Raio-X Inicial</h3>
-                    </div>
-
-                    <div className="flex flex-col gap-6">
+                <motion.div
+                  key={step}
+                  custom={direction}
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="w-full flex flex-col gap-8 [will-change:transform,opacity]"
+                >
+                  {step === 1 && (
+                    <div className="flex flex-col gap-8 w-full">
                       <div className="flex flex-col gap-2">
-                         <label className="text-white/60 text-sm font-medium">Nome Oficial da Clínica / Operação</label>
-                         <input 
-                           type="text" 
-                           placeholder="Digite o nome da empresa..."
-                           value={formData.nomeClinica}
-                           onChange={(e) => setFormData({...formData, nomeClinica: e.target.value})}
-                           className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#F22471]/50 focus:bg-white/[0.05] transition-all"
-                         />
+                        <span className="text-[#F24639] text-sm font-bold tracking-wide uppercase">Etapa 01 de 04</span>
+                        <h3 className="text-white text-2xl font-bold tracking-tight">O Raio-X Inicial</h3>
                       </div>
+                      <div className="flex flex-col gap-6">
+                        <div className="flex flex-col gap-2">
+                           <label className="text-white/60 text-sm font-medium">Nome Oficial da Clínica / Operação</label>
+                           <input 
+                             type="text" 
+                             placeholder="Digite o nome da empresa..."
+                             value={formData.nomeClinica}
+                             onChange={(e) => setFormData(prev => ({...prev, nomeClinica: e.target.value}))}
+                             className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#F22471]/50 transition-all"
+                           />
+                        </div>
+                        <div className="flex flex-col gap-3">
+                           <label className="text-white/60 text-sm font-medium">Faturamento Médio Mensal</label>
+                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <OptionCard field="faturamento" value="< 50k" label="Até R$ 50k" />
+                              <OptionCard field="faturamento" value="50k-150k" label="R$ 50k - 150k" />
+                              <OptionCard field="faturamento" value="> 150k" label="Acima de 150k" />
+                           </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
+                  {step === 2 && (
+                    <div className="flex flex-col gap-8 w-full">
+                      <div className="flex flex-col gap-2">
+                        <span className="text-[#F24639] text-sm font-bold tracking-wide uppercase">Etapa 02 de 04</span>
+                        <h3 className="text-white text-2xl font-bold tracking-tight">Qual é a dor atual?</h3>
+                      </div>
                       <div className="flex flex-col gap-3">
-                         <label className="text-white/60 text-sm font-medium">Faturamento Médio Mensal</label>
-                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <OptionCard field="faturamento" value="< 50k" label="Até R$ 50k" />
-                            <OptionCard field="faturamento" value="50k-150k" label="R$ 50k - R$ 150k" />
-                            <OptionCard field="faturamento" value="> 150k" label="Acima de 150k" />
-                         </div>
+                        <label className="text-white/60 text-sm font-medium">Principal gargalo tecnológico ou comercial:</label>
+                        <div className="flex flex-col gap-3 mt-2">
+                          <OptionCard field="gargalo" value="falta_leads" label="Falta de Volume de Leads." />
+                          <OptionCard field="gargalo" value="leads_sujos" label="Leads curiosos/desqualificados." />
+                          <OptionCard field="gargalo" value="agenda_vazia" label="Dificuldade em converter em CRM." />
+                        </div>
                       </div>
                     </div>
-                  </motion.div>
-                )}
+                  )}
 
-                {/* ETAPA 2 */}
-                {step === 2 && (
-                  <motion.div
-                    key="step2"
-                    custom={direction}
-                    variants={variants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className="flex flex-col gap-8 w-full"
-                  >
-                    <div className="flex flex-col gap-2">
-                      <span className="text-[#F24639] text-sm font-bold tracking-wide">ETAPA 02 DE 04</span>
-                      <h3 className="text-white text-2xl font-bold tracking-tight">Qual é a dor atual?</h3>
-                    </div>
-
-                    <div className="flex flex-col gap-3">
-                      <label className="text-white/60 text-sm font-medium">Selecione o seu principal gargalo tecnológico ou comercial hoje:</label>
-                      <div className="flex flex-col gap-3 mt-2">
-                        <OptionCard field="gargalo" value="falta_leads" label="Falta de Volume de Leads na ponta." />
-                        <OptionCard field="gargalo" value="leads_sujos" label="Muitos leads curiosos e desqualificados." />
-                        <OptionCard field="gargalo" value="agenda_vazia" label="A equipe não consegue converter em agendamento (CRM)." />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* ETAPA 3 */}
-                {step === 3 && (
-                  <motion.div
-                    key="step3"
-                    custom={direction}
-                    variants={variants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className="flex flex-col gap-8 w-full"
-                  >
-                    <div className="flex flex-col gap-2">
-                      <span className="text-[#F24639] text-sm font-bold tracking-wide">ETAPA 03 DE 04</span>
-                      <h3 className="text-white text-2xl font-bold tracking-tight">Capacidade Escalar</h3>
-                    </div>
-
-                    <div className="flex flex-col gap-3">
-                      <label className="text-white/60 text-sm font-medium">Volume disposto para injetar em Tráfego (Mídia) para Escalar:</label>
-                      <div className="flex flex-col gap-3 mt-2">
-                        <OptionCard field="investimento" value="iniciante" label="Conservador: R$ 2.000 a R$ 5.000 / mês" />
-                        <OptionCard field="investimento" value="mediano" label="Agressivo: R$ 5.000 a R$ 15.000 / mês" />
-                        <OptionCard field="investimento" value="avancado" label="Poder de Aquisição Total: +R$ 15.000 / mês" />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* ETAPA 4 */}
-                {step === 4 && (
-                  <motion.div
-                    key="step4"
-                    custom={direction}
-                    variants={variants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className="flex flex-col gap-8 w-full"
-                  >
-                    <div className="flex flex-col gap-2">
-                      <span className="text-[#F24639] text-sm font-bold tracking-wide">ETAPA 04 DE 04</span>
-                      <h3 className="text-white text-2xl font-bold tracking-tight">Contato do Diretor</h3>
-                    </div>
-
-                    <div className="flex flex-col gap-6">
+                  {step === 3 && (
+                    <div className="flex flex-col gap-8 w-full">
                       <div className="flex flex-col gap-2">
-                         <label className="text-white/60 text-sm font-medium">WhatsApp Direto</label>
-                         <input 
-                           type="tel" 
-                           placeholder="(00) 00000-0000"
-                           value={formData.whatsapp}
-                           onChange={(e) => setFormData({...formData, whatsapp: e.target.value})}
-                           className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#F22471]/50 focus:bg-white/[0.05] transition-all"
-                         />
+                        <span className="text-[#F24639] text-sm font-bold tracking-wide uppercase">Etapa 03 de 04</span>
+                        <h3 className="text-white text-2xl font-bold tracking-tight">Capacidade Escalar</h3>
                       </div>
-                      <div className="flex flex-col gap-2">
-                         <label className="text-white/60 text-sm font-medium">E-mail Comercial Oficial</label>
-                         <input 
-                           type="email" 
-                           placeholder="nome@suaclinica.com.br"
-                           value={formData.email}
-                           onChange={(e) => setFormData({...formData, email: e.target.value})}
-                           className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#F22471]/50 focus:bg-white/[0.05] transition-all"
-                         />
+                      <div className="flex flex-col gap-3">
+                        <label className="text-white/60 text-sm font-medium">Investimento mensal disposto para Mídia:</label>
+                        <div className="flex flex-col gap-3 mt-2">
+                          <OptionCard field="investimento" value="iniciante" label="R$ 2.000 a R$ 5.000 / mês" />
+                          <OptionCard field="investimento" value="mediano" label="R$ 5.000 a R$ 15.000 / mês" />
+                          <OptionCard field="investimento" value="avancado" label="+ R$ 15.000 / mês" />
+                        </div>
                       </div>
                     </div>
-                  </motion.div>
-                )}
+                  )}
 
+                  {step === 4 && (
+                    <div className="flex flex-col gap-8 w-full">
+                      <div className="flex flex-col gap-2">
+                        <span className="text-[#F24639] text-sm font-bold tracking-wide uppercase">Etapa 04 de 04</span>
+                        <h3 className="text-white text-2xl font-bold tracking-tight">Contato do Diretor</h3>
+                      </div>
+                      <div className="flex flex-col gap-6">
+                        <div className="flex flex-col gap-2">
+                           <label className="text-white/60 text-sm font-medium">WhatsApp Direto</label>
+                           <input 
+                             type="tel" 
+                             placeholder="(00) 00000-0000"
+                             value={formData.whatsapp}
+                             onChange={(e) => setFormData(prev => ({...prev, whatsapp: e.target.value}))}
+                             className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-[#F22471]/50 transition-all"
+                           />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                           <label className="text-white/60 text-sm font-medium">E-mail Comercial Oficial</label>
+                           <input 
+                             type="email" 
+                             placeholder="nome@suaclinica.com.br"
+                             value={formData.email}
+                             onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))}
+                             className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-[#F22471]/50 transition-all"
+                           />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
               </AnimatePresence>
             </div>
 
-            {/* Controles do Multi-step */}
+            {/* Controles de Navegação */}
             <div className="flex items-center justify-between pt-8 mt-4 border-t border-white/10">
               {step > 1 ? (
                 <button 
@@ -297,25 +252,20 @@ export default function Diagnostic() {
               {step < 4 ? (
                 <button 
                   onClick={nextStep}
-                  // Botão desativado temporariamente visualmente se inputs estiverem vazios na demo (se quiser rigor)
                   className="inline-flex items-center gap-2 text-white bg-white/10 hover:bg-white/20 px-6 py-3 rounded-xl font-medium transition-all"
                 >
                   <span>Continuar</span>
                   <ArrowRight weight="bold" />
                 </button>
               ) : (
-                <Button 
-                  className="gap-2 text-sm md:text-base py-4 md:py-4 px-6 md:px-8 shadow-[0_0_35px_-5px_#F22471] brightness-110"
-                >
-                  <CheckCircle weight="fill" className="w-5 h-5 text-white" />
-                  Enviar Diagnóstico para Análise
+                <Button className="gap-2 text-sm md:text-base py-4 px-6 md:px-8 shadow-[0_0_35px_-5px_#F22471]">
+                  <CheckCircle weight="fill" className="w-5 h-5" />
+                  Enviar Diagnóstico
                 </Button>
               )}
             </div>
-
           </motion.div>
         </div>
-
       </div>
     </section>
   )

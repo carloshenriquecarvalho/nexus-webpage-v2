@@ -37,7 +37,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             className="text-white/80 text-lg md:text-xl leading-relaxed max-w-[55ch]"
           >
-            Saia da incerteza do marketing tradicional. Implementamos um framework científico para transformar dados em agenda cheia e faturamento exponencial para clínicas de alto padrão.
+            Saia da increteza do marketing tradicional. Implementamos um framework científico para transformar dados em agenda cheia e faturamento exponencial para clínicas de alto padrão.
           </motion.p>
           
           <motion.div 
@@ -56,60 +56,60 @@ export default function Hero() {
 
         </div>
 
-        {/* Lado Direito: O Objeto de Poder / UAU Element (40%) */}
+        {/* Lado Direito: O Objeto de Poder (40%) - Otimizado para Performance */}
         <div className="w-full lg:w-[40%] aspect-square relative flex items-center justify-center">
           
-          {/* Fundo de luz (Neon Glow) */}
-          <div className="absolute w-[300px] h-[300px] bg-gradient-to-tr from-[#F24639] to-[#F22471] rounded-full blur-[120px] opacity-30 animate-pulse" style={{ animationDuration: '4s' }} />
+          {/* Fundo de luz (Neon Glow) - Estático ou com opacidade simples para poupar GPU */}
+          <div className="absolute w-[300px] h-[300px] bg-gradient-to-tr from-[#F24639] to-[#F22471] rounded-full blur-[120px] opacity-20" />
 
-          {/* Estrutura Geométrica Abstrata (Funil de Vidro Dinâmico) */}
-          <div className="relative z-10 w-full h-full flex items-center justify-center transform perspective-1000">
+          {/* Estrutura Geométrica Abstrata com Hardware Acceleration */}
+          <div className="relative z-10 w-full h-full flex items-center justify-center transform perspective-1000 [backface-visibility:hidden]">
             
             {/* Núcleo Pulsante Primário */}
             <motion.div 
               animate={{ 
-                scale: [1, 1.2, 1],
-                opacity: [0.8, 1, 0.8]
+                scale: [1, 1.1, 1],
+                opacity: [0.7, 0.9, 0.7]
               }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute w-24 h-24 bg-gradient-to-br from-[#F24639] to-[#F22471] rounded-full blur-md opacity-90 shadow-[0_0_80px_#F22471]"
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute w-24 h-24 bg-gradient-to-br from-[#F24639] to-[#F22471] rounded-full blur-md opacity-80 shadow-[0_0_50px_rgba(242,36,113,0.4)] [will-change:transform,opacity]"
             />
 
-            {/* Anel 1 - Externo */}
+            {/* Anel 1 - Externo (Otimizado: Backdrop-blur apenas em Desktop) */}
             <motion.div 
               animate={{ rotateZ: 360, rotateX: 75, rotateY: 15 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute w-80 h-80 rounded-full border border-white/10 border-t-[#F24639] bg-white/[0.02] backdrop-blur-sm"
+              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+              className="absolute w-80 h-80 rounded-full border border-white/10 border-t-[#F24639] bg-white/[0.02] lg:backdrop-blur-sm [will-change:transform]"
             />
 
             {/* Anel 2 - Médio */}
             <motion.div 
               animate={{ rotateZ: -360, rotateX: 65, rotateY: -25 }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-              className="absolute w-60 h-60 rounded-full border border-white/20 border-b-[#F22471] bg-white/[0.03] backdrop-blur-md shadow-[inset_0_0_30px_rgba(242,36,113,0.2)]"
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="absolute w-60 h-60 rounded-full border border-white/20 border-b-[#F22471] bg-white/[0.03] lg:backdrop-blur-md [will-change:transform]"
             />
 
-            {/* Anel 3 - Interno (Mais Rápido) */}
+            {/* Anel 3 - Interno */}
             <motion.div 
               animate={{ rotateZ: 360, rotateX: 45, rotateY: 45 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute w-40 h-40 rounded-full border border-white/30 border-l-[#F22471] bg-white/[0.05] backdrop-blur-lg"
+              transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+              className="absolute w-40 h-40 rounded-full border border-white/30 border-l-[#F22471] bg-white/[0.05] [will-change:transform]"
             />
 
-            {/* Partículas de Dados Subindo (Simulando Fluxo de Escala) */}
-            {[...Array(6)].map((_, i) => (
+            {/* Partículas de Dados (Uso de Hardware Acceleration para evitar stuttering) */}
+            {[...Array(5)].map((_, i) => (
               <motion.div
                 key={i}
-                initial={{ y: 200, opacity: 0, scale: 0.5 }}
-                animate={{ y: -200, opacity: [0, 1, 0], scale: 1 }}
+                initial={{ y: 150, opacity: 0 }}
+                animate={{ y: -150, opacity: [0, 1, 0] }}
                 transition={{ 
-                  duration: 4, 
+                  duration: 5, 
                   repeat: Infinity, 
-                  delay: i * 0.7,
-                  ease: "easeInOut"
+                  delay: i * 1,
+                  ease: "linear"
                 }}
-                className="absolute w-2 h-2 rounded-full bg-[#F24639] shadow-[0_0_10px_#F22471]"
-                style={{ left: `calc(50% + ${(i - 2.5) * 30}px)` }}
+                className="absolute w-1.5 h-1.5 rounded-full bg-[#F24639] shadow-[0_0_10px_#F22471] [will-change:transform,opacity]"
+                style={{ left: `calc(50% + ${(i - 2) * 40}px)` }}
               />
             ))}
 
@@ -119,7 +119,7 @@ export default function Hero() {
 
       </div>
       
-      {/* Isolamento Visual para Soft Transition de Fundo */}
+      {/* Isolamento Visual para Soft Transition */}
       <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#0D0D0D] to-transparent pointer-events-none" />
     </section>
   )
