@@ -1,9 +1,8 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   swcMinify: true,
   experimental: {
-    legacyBrowsers: false,
+    // Outras configs experimentais se houver, caso contrário, apague o bloco
   },
   images: {
     formats: ["image/avif", "image/webp"],
