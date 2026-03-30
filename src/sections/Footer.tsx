@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { InstagramLogo, LinkedinLogo, WhatsappLogo } from "@phosphor-icons/react"
@@ -17,7 +18,14 @@ export default function Footer() {
           
           <div className="lg:col-span-5 flex flex-col gap-6">
             <Link href="/" className="inline-block w-fit">
-              <img src="/logo-colorida.png" alt="Nexus" className="h-8 md:h-10 w-auto object-contain" />
+              <Image
+                src="/logo-colorida.png"
+                alt="Nexus"
+                width={60}
+                height={40}
+                className="h-8 md:h-10 w-auto object-contain"
+                priority
+              />
             </Link>
             <p className="text-white/60 text-base max-w-[300px] leading-relaxed">
               Engenharia de Growth para o mercado High-End.

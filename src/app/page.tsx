@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Hero from "@/sections/Hero"
 import Commitment from "@/sections/Commitment"
 import Engine from "@/sections/Engine"
@@ -11,7 +12,14 @@ export default function Home() {
       {/* Navigation Layer */}
       <nav className="fixed top-0 w-full p-6 z-50 flex items-center justify-between pointer-events-none">
         <div className="liquid-glass px-4 py-3 rounded-2xl pointer-events-auto flex items-center justify-center">
-          <img src="/logo-branca.png" alt="Nexus Branca" className="h-6 w-auto object-contain" />
+          <Image
+            src="/logo-branca.png"
+            alt="Nexus Branca"
+            width={63}
+            height={42}
+            className="object-contain"
+            priority
+          />
         </div>
         <button className="cursor-pointer liquid-glass text-[var(--foreground)] px-6 py-2 rounded-full font-medium pointer-events-auto hover:bg-white/20 transition-colors">
           Menu
