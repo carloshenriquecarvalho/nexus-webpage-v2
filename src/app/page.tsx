@@ -12,18 +12,17 @@ export default function Home() {
       {/* Navigation Layer */}
       <nav className="fixed top-0 w-full p-6 z-50 flex items-center justify-between pointer-events-none">
         <div className="liquid-glass px-4 py-3 rounded-2xl pointer-events-auto flex items-center justify-center">
-          <Image
-            src="/logo-branca.png"
-            alt="Nexus Branca"
-            width={63}
-            height={42}
-            className="object-contain"
-            priority
-          />
+          <a href="#hero">
+            <Image
+              src="/logo-branca.png"
+              alt="Nexus Branca"
+              width={63}
+              height={42}
+              className="object-contain"
+              priority
+            />
+          </a>
         </div>
-        <button className="cursor-pointer liquid-glass text-[var(--foreground)] px-6 py-2 rounded-full font-medium pointer-events-auto hover:bg-white/20 transition-colors">
-          Menu
-        </button>
       </nav>
 
       {/* Sections */}

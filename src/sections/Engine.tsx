@@ -69,6 +69,7 @@ export default function Engine() {
 
   return (
     <section 
+      id="method"
       ref={containerRef}
       className="relative w-full py-32 md:py-48 bg-[#0D0D0D] overflow-hidden"
     >

@@ -4,8 +4,14 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/Button"
 
 export default function Hero() {
+  const handleScroll = () => {
+  const elemento = document.getElementById('method');
+  if (elemento) {
+    elemento.scrollIntoView();
+  }
+  };
   return (
-    <section className="relative w-full min-h-[100dvh] bg-[#0D0D0D] overflow-hidden flex items-center">
+    <section className="relative w-full min-h-[100dvh] bg-[#0D0D0D] overflow-hidden flex items-center" id="hero">
       
       {/* Container Principal 60/40 */}
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 flex flex-col lg:flex-row items-center justify-between gap-16 py-32">
@@ -49,7 +55,7 @@ export default function Hero() {
             <Button className="w-full sm:w-auto">
               Solicitar Diagnóstico de Escala
             </Button>
-            <Button variant="ghost" className="w-full sm:w-auto">
+            <Button onClick={handleScroll}  variant="ghost" className="w-full sm:w-auto">
               Conhecer o Método
             </Button>
           </motion.div>
