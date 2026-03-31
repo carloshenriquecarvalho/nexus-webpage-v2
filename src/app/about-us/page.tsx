@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion"
 import { useRef } from "react"
 import { ChartLineUp, Crown, ShieldCheck } from "@phosphor-icons/react"
 import { Button } from "@/components/Button"
+import { SecondaryNavbar } from "@/components/SecondaryNavbar"
 
 export default function AboutUs() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -22,22 +23,7 @@ export default function AboutUs() {
   return (
     <main ref={containerRef} className="min-h-screen bg-[var(--background)] flex flex-col items-center selection:bg-[var(--accent)] selection:text-white">
       {/* Navigation Layer - Minimalist */}
-      <nav className="fixed top-0 w-full p-6 z-50 flex items-center justify-between pointer-events-none">
-        <motion.div 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="liquid-glass px-6 py-4 rounded-2xl pointer-events-auto flex items-center justify-between w-full max-w-7xl mx-auto shadow-2xl"
-        >
-          <a href="/" className="font-bold text-xl tracking-tight text-white hover:text-[var(--accent)] transition-colors">
-            Nexus
-          </a>
-          <div className="flex gap-8 items-center text-sm font-medium text-zinc-400">
-            <a href="/#engine" className="hover:text-white transition-colors">Método</a>
-            <a href="/#diagnostic" className="hover:text-white transition-colors">Diagnóstico</a>
-          </div>
-        </motion.div>
-      </nav>
+      <SecondaryNavbar />
 
       {/* Bloco 1: Hero Institucional (Split Screen 50/50) */}
       <section className="relative w-full min-h-screen flex flex-col lg:flex-row items-center border-b border-white/5">

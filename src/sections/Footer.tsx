@@ -35,14 +35,11 @@ export default function Footer() {
           <div className="lg:col-span-4 flex flex-col gap-6 lg:pl-12">
             <span className="text-white/30 font-bold text-[10px] tracking-[0.2em] uppercase">Navegação Rápida</span>
             <nav className="flex flex-col gap-4">
-              <Link href="#" className="w-fit text-white/70 hover:text-white transition-colors font-medium">
-                O Método Nexus
+              <Link href="/about-us" className="w-fit text-white/70 hover:text-white transition-colors font-medium">
+                Quem Somos
               </Link>
-              <Link href="#" className="w-fit text-white/70 hover:text-white transition-colors font-medium">
-                Escala Operacional
-              </Link>
-              <Link href="#" className="w-fit text-white/70 hover:text-white transition-colors font-medium">
-                Diagnóstico de Escala
+              <Link href="/method" className="w-fit text-white/70 hover:text-white transition-colors font-medium">
+                Método Nexus
               </Link>
             </nav>
           </div>
@@ -84,8 +81,14 @@ export default function Footer() {
             <span className="text-white/30 text-[10px] md:text-xs font-semibold tracking-[0.15em] uppercase">
               © 2026 NEXUS GROWTH MARKETING 
             </span>
-            <span className="text-white/20 text-[10px] font-mono tracking-widest">
-              CNPJ: 59.245.046/0001-13
+            <span className="text-white/20 text-[10px] font-mono tracking-widest leading-relaxed">
+              CNPJ: 59.245.046/0001-13<br/>
+              <Link href="/privacy" className="hover:text-white/60 transition-colors mt-2 inline-block border-b border-transparent hover:border-white/20 mr-4">
+                Política de Privacidade
+              </Link>
+              <Link href="/terms" className="hover:text-white/60 transition-colors mt-2 inline-block border-b border-transparent hover:border-white/20">
+                Termos de Uso
+              </Link>
             </span>
           </div>
 
