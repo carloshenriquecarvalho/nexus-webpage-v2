@@ -100,11 +100,11 @@ export default function Diagnostic() {
       });
 
       if (response.ok) {
-        window.open("https://wa.me/556196550552?text=Olá! Vim pelo site e gostaria de solicitar meu diagnóstico de escala.", "_blank");
+        window.open("/thanks");
       }
     } catch (err) {
       console.error("Erro brutal ao enviar dados", err);
-      window.open("https://wa.me/556196550552?text=Olá! Vim pelo site e gostaria de solicitar meu diagnóstico de escala.", "_blank");
+      window.open("/thanks");
     }
   }
 
