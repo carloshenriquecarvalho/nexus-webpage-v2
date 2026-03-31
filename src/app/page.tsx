@@ -1,10 +1,14 @@
 import Image from "next/image"
+
 import Hero from "@/sections/Hero"
 import Commitment from "@/sections/Commitment"
 import Engine from "@/sections/Engine"
 import Infrastructure from "@/sections/Infrastructure"
+import MartechLabSection from "@/sections/MartechLabSection"
 import Diagnostic from "@/sections/Diagnostic"
 import Footer from "@/sections/Footer"
+
+
 
 export default function Home() {
   return (
@@ -25,6 +29,7 @@ export default function Home() {
       </nav>
 
       <Hero />
+      <MartechLabSection />
       <Commitment />
       <Engine />
       <Infrastructure />

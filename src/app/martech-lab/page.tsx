@@ -1,5 +1,6 @@
 ﻿"use client"
 
+import Link from "next/link"
 import { type ChangeEvent, type DragEvent, useMemo, useState } from "react"
 import { parse, type ParseResult } from "papaparse"
 import {
@@ -16,7 +17,16 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import { CheckCircle2, CloudUpload } from "lucide-react"
+import { CheckCircle2, CloudUpload, X } from "lucide-react"
+import { DownloadSimple } from "@phosphor-icons/react"
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  pdf,
+} from "@react-pdf/renderer"
 import {
   MarketingMetrics,
   aggregateMarketingMetrics,
@@ -171,6 +181,7 @@ function buildUploadDetails(
   data: MarketingMetrics[],
   onDrop: (event: DragEvent<HTMLDivElement>) => void,
   onFileChange: (event: ChangeEvent<HTMLInputElement>) => void,
+  onReset: () => void,
 ) {
   return (
     <div className="rounded-[2rem] border border-white/10 bg-[#111111] p-7">
@@ -180,14 +191,26 @@ function buildUploadDetails(
           <h3 className="mt-2 text-xl font-semibold text-white">Arquivo com período</h3>
           <p className="mt-2 text-sm text-zinc-400">{status.fileName}</p>
         </div>
-        <div
-          className={classNames(
-            "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold",
-            status.loaded ? "bg-emerald-500/10 text-emerald-300" : "bg-white/5 text-zinc-300",
+        <div className="flex items-center gap-3">
+          <div
+            className={classNames(
+              "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold",
+              status.loaded ? "bg-emerald-500/10 text-emerald-300" : "bg-white/5 text-zinc-300",
+            )}
+          >
+            <CheckCircle2 size={18} />
+            {status.loaded ? "Arquivo carregado" : "Aguardando arquivo"}
+          </div>
+          {status.loaded && (
+            <button
+              type="button"
+              onClick={onReset}
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-zinc-300 transition hover:border-white/20 hover:bg-white/10"
+            >
+              <X size={16} />
+              Remover CSV
+            </button>
           )}
-        >
-          <CheckCircle2 size={18} />
-          {status.loaded ? "Arquivo carregado" : "Aguardando arquivo"}
         </div>
       </div>
 
@@ -210,6 +233,242 @@ function buildUploadDetails(
         {renderTablePreview(data)}
       </div>
     </div>
+  )
+}
+
+function getExecutivePdfStyles() {
+  return StyleSheet.create({
+    page: {
+      padding: 24,
+      fontSize: 12,
+      fontFamily: "Helvetica",
+      color: "#111111",
+      backgroundColor: "#ffffff",
+    },
+    header: {
+      marginBottom: 20,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: "bold",
+      marginBottom: 6,
+      color: "#111111",
+    },
+    subtitle: {
+      fontSize: 10,
+      color: "#555555",
+      marginBottom: 16,
+    },
+    cardGrid: {
+      display: "flex",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+      gap: 8,
+      marginBottom: 16,
+    },
+    card: {
+      width: "48%",
+      padding: 10,
+      borderWidth: 1,
+      borderColor: "#e5e7eb",
+      borderRadius: 6,
+      backgroundColor: "#fafafa",
+      marginBottom: 8,
+    },
+    cardLabel: {
+      fontSize: 10,
+      color: "#6b7280",
+      marginBottom: 4,
+    },
+    cardValue: {
+      fontSize: 14,
+      fontWeight: "bold",
+      color: "#111111",
+    },
+    warningItem: {
+      padding: 10,
+      borderWidth: 1,
+      borderColor: "#e5e7eb",
+      borderRadius: 6,
+      marginBottom: 10,
+    },
+    warningTitle: {
+      fontSize: 12,
+      fontWeight: "bold",
+      marginBottom: 4,
+    },
+    warningSeverity: {
+      fontSize: 10,
+      color: "#9b1c1c",
+      marginBottom: 4,
+    },
+    warningText: {
+      fontSize: 10,
+      color: "#333333",
+      marginBottom: 4,
+    },
+    section: {
+      marginBottom: 18,
+    },
+    sectionTitle: {
+      fontSize: 14,
+      fontWeight: "bold",
+      marginBottom: 10,
+      color: "#111111",
+    },
+    table: {
+      width: "100%",
+      borderWidth: 1,
+      borderColor: "#e5e7eb",
+      borderStyle: "solid",
+      marginBottom: 16,
+    },
+    tableRow: {
+      flexDirection: "row",
+      borderBottomWidth: 1,
+      borderBottomColor: "#e5e7eb",
+      borderBottomStyle: "solid",
+    },
+    tableHeader: {
+      width: "12.5%",
+      padding: 6,
+      fontSize: 9,
+      fontWeight: "bold",
+      color: "#111111",
+      borderRightWidth: 1,
+      borderRightColor: "#e5e7eb",
+      borderRightStyle: "solid",
+    },
+    tableHeaderWide: {
+      width: "20%",
+      padding: 6,
+      fontSize: 9,
+      fontWeight: "bold",
+      color: "#111111",
+      borderRightWidth: 1,
+      borderRightColor: "#e5e7eb",
+      borderRightStyle: "solid",
+    },
+    tableCell: {
+      width: "12.5%",
+      padding: 6,
+      fontSize: 9,
+      color: "#333333",
+      borderRightWidth: 1,
+      borderRightColor: "#e5e7eb",
+      borderRightStyle: "solid",
+    },
+    tableCellWide: {
+      width: "20%",
+      padding: 6,
+      fontSize: 9,
+      color: "#333333",
+      borderRightWidth: 1,
+      borderRightColor: "#e5e7eb",
+      borderRightStyle: "solid",
+    },
+    smallText: {
+      fontSize: 10,
+      color: "#555555",
+    },
+  })
+}
+
+function ExecutiveReportDocument({
+  overallSummary,
+  warnings,
+  periodChannelSummaries,
+}: {
+  overallSummary: MarketingMetrics
+  warnings: InsightWarning[]
+  periodChannelSummaries: Array<{ period: string; channel: string; summary: MarketingMetrics }>
+}) {
+  const styles = getExecutivePdfStyles()
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Nexus Tecnologia e Inovação</Text>
+          <Text style={styles.subtitle}>Relatório Executivo de Performance de Marketing</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Sumário de Performance</Text>
+          <View style={styles.cardGrid}>
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>Investimento Total</Text>
+              <Text style={styles.cardValue}>{formatCurrency(overallSummary.investimento)}</Text>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>Leads</Text>
+              <Text style={styles.cardValue}>{overallSummary.leads}</Text>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>Conversões</Text>
+              <Text style={styles.cardValue}>{overallSummary.conversoes}</Text>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>Faturamento Total</Text>
+              <Text style={styles.cardValue}>{formatCurrency(overallSummary.faturamento)}</Text>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>CPL Médio</Text>
+              <Text style={styles.cardValue}>{formatCurrency(overallSummary.cpl)}</Text>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>ROAS Geral</Text>
+              <Text style={styles.cardValue}>{overallSummary.roas > 0 ? overallSummary.roas.toFixed(2) : "N/A"}</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>O Diagnóstico</Text>
+          <Text style={styles.smallText}>
+            “Métricas isoladas mentem. Inteligência de marketing é conectar os pontos”.
+          </Text>
+          {warnings.length ? warnings.map((warning, index) => (
+            <View key={index} style={styles.warningItem}>
+              <Text style={styles.warningTitle}>{warning.title}</Text>
+              <Text style={styles.warningSeverity}>Severidade: {warning.severity.toUpperCase()}</Text>
+              <Text style={styles.warningText}>{warning.explanation}</Text>
+              <Text style={styles.warningText}>Recomendação: {warning.recommendation}</Text>
+            </View>
+          )) : (
+            <Text style={styles.smallText}>Nenhum alerta crítico detectado no momento.</Text>
+          )}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Tabela Detalhada</Text>
+          <View style={styles.table}>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableHeaderWide}>Período</Text>
+              <Text style={styles.tableHeader}>Canal</Text>
+              <Text style={styles.tableHeader}>Invest.</Text>
+              <Text style={styles.tableHeader}>Leads</Text>
+              <Text style={styles.tableHeader}>Conv.</Text>
+              <Text style={styles.tableHeader}>Fatur.</Text>
+              <Text style={styles.tableHeader}>CPL</Text>
+              <Text style={styles.tableHeader}>ROAS</Text>
+            </View>
+            {periodChannelSummaries.map((item, index) => (
+              <View key={`${item.period}-${item.channel}-${index}`} style={styles.tableRow}>
+                <Text style={styles.tableCellWide}>{formatPeriodLabel(item.period)}</Text>
+                <Text style={styles.tableCell}>{item.channel}</Text>
+                <Text style={styles.tableCell}>{formatCurrency(item.summary.investimento)}</Text>
+                <Text style={styles.tableCell}>{item.summary.leads}</Text>
+                <Text style={styles.tableCell}>{item.summary.conversoes}</Text>
+                <Text style={styles.tableCell}>{formatCurrency(item.summary.faturamento)}</Text>
+                <Text style={styles.tableCell}>{formatCurrency(item.summary.cpl)}</Text>
+                <Text style={styles.tableCell}>{item.summary.roas > 0 ? item.summary.roas.toFixed(2) : "N/A"}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </Page>
+    </Document>
   )
 }
 
@@ -540,6 +799,7 @@ export default function MartechLabPage() {
   const [status, setStatus] = useState<UploadStatus>(buildInitialStatus())
   const [errorMessage, setErrorMessage] = useState<string>("")
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false)
 
   const overallSummary = useMemo(() => aggregateMarketingMetrics(data), [data])
 
@@ -644,6 +904,46 @@ export default function MartechLabPage() {
     if (file) handleFile(file)
   }
 
+  function handleResetUpload() {
+    setData([])
+    setStatus(buildInitialStatus())
+    setErrorMessage("")
+    setIsLoading(false)
+  }
+
+  async function handleExportExecutiveReport() {
+    if (!hasAnyData) return
+
+    setIsExportingPdf(true)
+    try {
+      const reportElement = (
+        <ExecutiveReportDocument
+          overallSummary={overallSummary}
+          warnings={warningItems}
+          periodChannelSummaries={periodChannelSummaries}
+        />
+      )
+
+      const blob = await pdf(reportElement).toBlob()
+      if (!blob) {
+        throw new Error("Falha ao gerar o PDF.")
+      }
+
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = "relatorio-executivo-martech.pdf"
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsExportingPdf(false)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-[#0D0D0D] px-6 py-10 text-white">
       <div className="mx-auto max-w-7xl">
@@ -659,7 +959,7 @@ export default function MartechLabPage() {
               </p>
             </div>
             <div className="rounded-[2rem] bg-gradient-to-r from-[#F24639] to-[#F22471] px-6 py-5 text-sm font-semibold text-[#0d0d0d] shadow-[0_20px_60px_rgba(242,36,113,0.24)]">
-              Use colunas em português ou inglês; a data é inferida automaticamente pelo campo de período.
+              Use colunas em português ou inglês. A data é inferida automaticamente pelo campo de período.
             </div>
           </div>
 
@@ -681,13 +981,21 @@ export default function MartechLabPage() {
                 </button>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={downloadExampleCsv}
-              className="inline-flex cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-[#F24639] to-[#F22471] px-6 py-3 text-sm font-semibold text-[#0d0d0d] transition hover:brightness-110"
-            >
-              Baixar CSV Modelo
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/"
+                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Voltar para a página inicial
+              </Link>
+              <button
+                type="button"
+                onClick={downloadExampleCsv}
+                className="inline-flex cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-[#F24639] to-[#F22471] px-6 py-3 text-sm font-semibold text-[#0d0d0d] transition hover:brightness-110"
+              >
+                Baixar CSV Modelo
+              </button>
+            </div>
           </div>
 
           {activeTab === "Dashboard" && (
@@ -696,6 +1004,17 @@ export default function MartechLabPage() {
                 renderEmptyState("Nenhum CSV carregado ainda.", "Ir para Upload", () => setActiveTab("Upload de Dados"))
               ) : (
                 <>
+                  <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                    <p className="text-sm text-zinc-400">Exporte um relatório executivo em PDF com os dados atuais do dashboard.</p>
+                    <button
+                      type="button"
+                      onClick={handleExportExecutiveReport}
+                      disabled={isExportingPdf}
+                      className="inline-flex cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-[#F24639] to-[#F22471] px-6 py-3 text-sm font-semibold text-[#0d0d0d] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isExportingPdf ? "Gerando PDF..." : "Exportar Relatório Executivo"}
+                    </button>
+                  </div>
                   <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
                     {renderKpiCard("Investimento Total", formatCurrency(overallSummary.investimento), "Total agregado do arquivo")}
                     {renderKpiCard("Total de Leads", overallSummary.leads.toString(), "Leads acumulados")}
@@ -806,7 +1125,7 @@ export default function MartechLabPage() {
               ) : null}
 
               <div className="grid gap-6 xl:grid-cols-1">
-                {buildUploadDetails(status, data, handleDrop, handleFileChange)}
+                {buildUploadDetails(status, data, handleDrop, handleFileChange, handleResetUpload)}
               </div>
 
               <div className="rounded-[2rem] border border-white/10 bg-[#111111] p-8">

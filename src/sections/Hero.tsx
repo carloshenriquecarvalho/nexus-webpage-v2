@@ -62,7 +62,7 @@ export default function Hero() {
 
         <div className="w-full lg:w-[40%] aspect-square relative flex items-center justify-center">
           
-          <div className="absolute w-[300px] h-[300px] bg-gradient-to-tr from-[#F24639] to-[#F22471] rounded-full blur-[120px] opacity-20" />
+          <div className="hidden lg:block absolute w-[300px] h-[300px] bg-gradient-to-tr from-[#F24639] to-[#F22471] rounded-full blur-[120px] opacity-20" />
 
           <div className="relative z-10 w-full h-full flex items-center justify-center transform perspective-1000 [backface-visibility:hidden]">
             
