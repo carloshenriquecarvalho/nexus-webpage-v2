@@ -10,7 +10,7 @@ export function SecondaryNavbar() {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="liquid-glass px-6 py-4 rounded-2xl pointer-events-auto flex items-center justify-between w-fit md:w-full max-w-7xl mx-auto shadow-2xl"
+          className="liquid-glass px-6 py-4 rounded-2xl pointer-events-auto flex items-center justify-between w-fit md:w-full max-w-7xl ml-0 md:mx-auto shadow-2xl"
         >
         <Link href="/" className="font-bold text-xl tracking-tight text-white hover:text-[var(--accent)] transition-colors">
           Nexus
