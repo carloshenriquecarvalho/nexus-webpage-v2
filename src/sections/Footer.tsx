@@ -51,13 +51,13 @@ export default function Footer() {
             <span className="text-white/30 font-bold text-[10px] tracking-[0.2em] uppercase">Contato Corporativo</span>
             
             <div className="flex items-center gap-3">
-              <Link href="#" className="w-12 h-12 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center hover:bg-[#F22471]/10 hover:border-[#F22471]/30 hover:text-[#F22471] transition-all text-white/50">
+              <Link href="https://www.instagram.com/a.nexusoficial/" target='_blank' className="w-12 h-12 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center hover:bg-[#F22471]/10 hover:border-[#F22471]/30 hover:text-[#F22471] transition-all text-white/50">
                 <InstagramLogo weight="fill" className="w-5 h-5" />
               </Link>
-              <Link href="#" className="w-12 h-12 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center hover:bg-[#0077B5]/10 hover:border-[#0077B5]/30 hover:text-[#0077B5] transition-all text-white/50">
+              <Link href="https://www.linkedin.com/company/a-nexus/about/" target="_blank" className="w-12 h-12 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center hover:bg-[#0077B5]/10 hover:border-[#0077B5]/30 hover:text-[#0077B5] transition-all text-white/50">
                 <LinkedinLogo weight="fill" className="w-5 h-5" />
               </Link>
-              <Link href="#" className="w-12 h-12 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center hover:bg-[#25D366]/10 hover:border-[#25D366]/30 hover:text-[#25D366] transition-all text-white/50">
+              <Link href="https://wa.me/5561996095651" target="_blank" className="w-12 h-12 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center hover:bg-[#25D366]/10 hover:border-[#25D366]/30 hover:text-[#25D366] transition-all text-white/50">
                 <WhatsappLogo weight="fill" className="w-5 h-5" />
               </Link>
             </div>

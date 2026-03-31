@@ -94,7 +94,7 @@ export default function Diagnostic() {
   }
 
   return (
-    <section className="relative w-full py-32 md:py-48 bg-[#0D0D0D] overflow-hidden flex justify-center">
+    <section className="relative w-full py-32 md:py-48 bg-[#0D0D0D] overflow-hidden flex justify-center" id="diagnostic">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#F24639] to-[#F22471] rounded-full blur-[150px] opacity-15 pointer-events-none [will-change:transform]" />
 
       <div className="relative z-10 w-full max-w-[1400px] px-6 md:px-12 flex flex-col lg:flex-row items-start gap-16 lg:gap-24">
