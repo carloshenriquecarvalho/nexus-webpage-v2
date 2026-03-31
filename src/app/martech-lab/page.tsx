@@ -187,7 +187,7 @@ function buildUploadDetails(
     <div className="rounded-[2rem] border border-white/10 bg-[#111111] p-7">
       <div className="mb-6 flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">Upload único</p>
+          <p className="text-sm uppercase tracking-[0.24em] text-zinc-300">Upload único</p>
           <h3 className="mt-2 text-xl font-semibold text-white">Arquivo com período</h3>
           <p className="mt-2 text-sm text-zinc-400">{status.fileName}</p>
         </div>
@@ -221,7 +221,7 @@ function buildUploadDetails(
       >
         <CloudUpload size={36} className="mx-auto text-[#F24639]" />
         <p className="mt-4 text-lg font-semibold text-white">Arraste e solte seu CSV</p>
-        <p className="mt-2 text-sm text-zinc-500">Use um arquivo com campo de data ou mês para analisar períodos automaticamente.</p>
+        <p className="mt-2 text-sm text-zinc-300">Use um arquivo com campo de data ou mês para analisar períodos automaticamente.</p>
         <label className="mt-6 inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F24639] to-[#F22471] px-6 py-3 text-sm font-semibold text-[#0d0d0d] transition hover:brightness-110">
           <input type="file" accept=".csv" className="hidden" onChange={onFileChange} />
           Selecionar arquivo
@@ -475,7 +475,7 @@ function ExecutiveReportDocument({
 function renderTablePreview(rows: MarketingMetrics[]) {
   const preview = rows.slice(0, 5)
   if (!preview.length) {
-    return <div className="mt-4 rounded-3xl border border-white/10 bg-[#111111] px-6 py-8 text-sm text-zinc-500">Nenhum preview disponível.</div>
+    return <div className="mt-4 rounded-3xl border border-white/10 bg-[#111111] px-6 py-8 text-sm text-zinc-300">Nenhum preview disponível.</div>
   }
 
   return (
@@ -511,7 +511,7 @@ function renderTablePreview(rows: MarketingMetrics[]) {
 function renderKpiCard(label: string, value: string, subtitle: string) {
   return (
     <div className="rounded-[2rem] border border-white/10 bg-[#111111] p-6">
-      <p className="text-sm uppercase tracking-[0.28em] text-zinc-500">{label}</p>
+      <p className="text-sm uppercase tracking-[0.28em] text-zinc-300">{label}</p>
       <p className="mt-4 text-3xl font-semibold text-white">{value}</p>
       <p className="mt-2 text-sm text-zinc-400">{subtitle}</p>
     </div>
@@ -521,7 +521,7 @@ function renderKpiCard(label: string, value: string, subtitle: string) {
 function renderEmptyState(message: string, buttonText: string, onAction: () => void) {
   return (
     <div className="rounded-[2rem] border border-white/10 bg-[#111111] p-10 text-center">
-      <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">Dashboard vazio</p>
+      <p className="text-sm uppercase tracking-[0.3em] text-zinc-300">Dashboard vazio</p>
       <h2 className="mt-4 text-3xl font-semibold text-white">{message}</h2>
       <button
         type="button"
@@ -1024,7 +1024,7 @@ export default function MartechLabPage() {
                     {renderKpiCard("CPA", formatCurrency(overallSummary.cpa), "Custo médio por aquisição")}
                     {renderKpiCard("CTR", formatSmallPercent(overallSummary.ctr), "Taxa de cliques média")}
                     <div className="rounded-[2rem] border border-white/10 bg-[#111111] p-6">
-                      <p className="text-sm uppercase tracking-[0.28em] text-zinc-500">ROAS</p>
+                      <p className="text-sm uppercase tracking-[0.28em] text-zinc-300">ROAS</p>
                       <p className="mt-4 text-3xl font-semibold text-white">{overallSummary.roas > 0 ? overallSummary.roas.toFixed(2) : "N/A"}</p>
                       <p className="mt-2 text-sm text-zinc-400">Retorno sobre investimento</p>
                     </div>
@@ -1155,7 +1155,7 @@ export default function MartechLabPage() {
           {activeTab === "Warnings & Insights" && (
             <section className="space-y-8">
               <div className="rounded-[2rem] border border-white/10 bg-[#111111] p-8">
-                <p className="text-sm uppercase tracking-[0.28em] text-zinc-500">Insight central</p>
+                <p className="text-sm uppercase tracking-[0.28em] text-zinc-300">Insight central</p>
                 <blockquote className="mt-4 text-xl font-semibold leading-9 text-white">
                   “Métricas isoladas mentem. CPL caiu? Ótimo. Mas e a conversão? E o ticket médio? E o ROAS? Inteligência de marketing é conectar os pontos — não celebrar números soltos.”
                 </blockquote>
