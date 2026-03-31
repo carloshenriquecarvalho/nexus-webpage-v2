@@ -13,7 +13,6 @@ export default function AboutUs() {
     offset: ["start start", "end end"]
   })
 
-  // Fade In Variant para Conteúdo Surgir ao Rolar
   const fadeIn = {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8 } }
@@ -21,12 +20,10 @@ export default function AboutUs() {
 
   return (
     <main ref={containerRef} className="min-h-screen bg-[var(--background)] flex flex-col items-center selection:bg-[var(--accent)] selection:text-white">
-      {/* Navigation Layer - Minimalist */}
       <SecondaryNavbar />
 
-      {/* Bloco 1: Hero Institucional (Split Screen 50/50) */}
       <section className="relative w-full min-h-screen flex flex-col lg:flex-row items-center border-b border-white/5">
-        <div className="w-full lg:w-1/2 h-[50vh] lg:h-screen relative overflow-hidden bg-[#0a0a0a]">
+        <div className="w-full lg:w-1/2 h-[55vh] md:h-[70vh] lg:h-screen relative overflow-hidden bg-[#0a0a0a]">
           <motion.div 
             style={{ y: useTransform(scrollYProgress, [0, 1], ["0%", "25%"]) }}
             className="absolute inset-0 w-full h-[120%]"
@@ -35,7 +32,7 @@ export default function AboutUs() {
               src="/carlos.png" 
               alt="O Fundador - Nexus"
               fill
-              className="object-cover grayscale contrast-125 brightness-90"
+              className="object-cover object-top grayscale contrast-125 brightness-90"
               priority
             />
             {/* Gradient Overlay to blend with UI */}
@@ -48,11 +45,11 @@ export default function AboutUs() {
               O Fundador
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-medium tracking-tight text-white mb-8 leading-[1.1]">
-              A Nexus não nasceu de uma agência.<br />
-              <span className="text-zinc-500">Nasceu de um laboratório de engenharia.</span>
+              A Nexus não é uma simples agência.<br />
+              <span className="text-zinc-500">É um laboratório de engenharia.</span>
             </h1>
-            <p className="text-lg md:text-xl text-zinc-400 leading-relaxed max-w-2xl">
-              Muitos veem o marketing como sorte. Nós vemos como precisão matemática. A Nexus surgiu da fusão entre o rigor da Engenharia de Computação e a agressividade do Growth Marketing.
+            <p className="text-lg md:text-xl text-zinc-300 leading-relaxed max-w-2xl">
+              &quot;Muitos veem o marketing como sorte. Eu vejo como precisão matemática. A Nexus surgiu da fusão entre o rigor da Engenharia de Computação e a agressividade do Growth Marketing.&quot; <cite>- Carlos H., CEO</cite> 
             </p>
           </motion.div>
         </div>
