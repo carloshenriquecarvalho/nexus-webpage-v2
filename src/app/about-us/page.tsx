@@ -35,7 +35,6 @@ export default function AboutUs() {
               className="object-cover object-top grayscale contrast-125 brightness-90"
               priority
             />
-            {/* Gradient Overlay to blend with UI */}
             <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[var(--background)] lg:via-[var(--background)]/40 to-transparent opacity-90 lg:opacity-100" />
           </motion.div>
         </div>
@@ -55,7 +54,6 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* Bloco 2: O Manifesto (Typography Block) */}
       <section className="w-full py-32 md:py-48 bg-[#0D0D0D] px-6 text-center border-b border-white/5 flex justify-center">
         <motion.div 
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeIn}
@@ -67,13 +65,11 @@ export default function AboutUs() {
         </motion.div>
       </section>
 
-      {/* Bloco 3: Pilares de Atuação (Bento Grid) */}
       <section className="w-full py-24 md:py-32 px-6 max-w-7xl mx-auto">
         <motion.div 
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeIn}
         >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Pilar 1 */}
             <div className="bento-card relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#F22471]/5 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2 group-hover:bg-[#F22471]/20 transition-colors duration-500" />
               <ChartLineUp size={48} weight="light" className="text-[#F24639] mb-8" />
@@ -84,7 +80,6 @@ export default function AboutUs() {
               </p>
             </div>
 
-            {/* Pilar 2 */}
             <div className="bento-card relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#F24639]/5 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2 group-hover:bg-[#F24639]/20 transition-colors duration-500" />
               <Crown size={48} weight="light" className="text-[#F22471] mb-8" />
@@ -95,7 +90,6 @@ export default function AboutUs() {
               </p>
             </div>
 
-            {/* Pilar 3 */}
             <div className="bento-card relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#F22471]/5 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2 group-hover:bg-[#F22471]/20 transition-colors duration-500" />
               <ShieldCheck size={48} weight="light" className="text-[#F24639] mb-8" />
@@ -109,7 +103,6 @@ export default function AboutUs() {
         </motion.div>
       </section>
 
-      {/* Bloco 4: Social Proof / Storytelling (O "Porquê") */}
       <section className="w-full py-24 md:py-32 px-6 bg-[var(--background)] flex justify-center">
         <motion.div 
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeIn}
@@ -124,9 +117,7 @@ export default function AboutUs() {
         </motion.div>
       </section>
 
-      {/* Bloco 5: CTA de Saída */}
       <section className="w-full py-32 md:py-48 px-6 bg-[#F22471] relative overflow-hidden flex justify-center">
-        {/* Abstract Background Design for Elite Feel */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#F24639] to-[#F22471]"></div>
         <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent opacity-60"></div>
         <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-black/10 via-transparent to-transparent blur-3xl"></div>

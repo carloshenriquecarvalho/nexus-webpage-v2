@@ -31,7 +31,7 @@ const variants = {
 export default function Diagnostic() {
   const [step, setStep] = useState(1)
   const [direction, setDirection] = useState(1)
-  
+
   const [formData, setFormData] = useState({
     nomeClinica: "",
     faturamento: "",
@@ -73,17 +73,15 @@ export default function Diagnostic() {
   const OptionCard = ({ field, value, label }: { field: keyof typeof formData, value: string, label: string }) => {
     const isSelected = formData[field] === value
     return (
-      <div 
+      <div
         onClick={() => setFormData(prev => ({ ...prev, [field]: value }))}
-        className={`flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer ${
-          isSelected 
-            ? "bg-[#F22471]/10 border-[#F22471] shadow-[0_0_15px_rgba(242,36,113,0.15)]" 
+        className={`flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer ${isSelected
+            ? "bg-[#F22471]/10 border-[#F22471] shadow-[0_0_15px_rgba(242,36,113,0.15)]"
             : "bg-white/[0.02] border-white/10 hover:border-white/20 hover:bg-white/[0.04]"
-        }`}
+          }`}
       >
-        <div className={`flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
-          isSelected ? "border-[#F24639]" : "border-white/30"
-        }`}>
+        <div className={`flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isSelected ? "border-[#F24639]" : "border-white/30"
+          }`}>
           {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-[#F24639] to-[#F22471]" />}
         </div>
         <span className={`text-sm md:text-base font-medium ${isSelected ? "text-white" : "text-white/60"}`}>
@@ -93,9 +91,21 @@ export default function Diagnostic() {
     )
   }
 
-  const submitForm = () => {
-    
-    window.open("https://wa.me/556196550552?text=Olá! Vim pelo site e gostaria de solicitar meu diagnóstico de escala.", "_blank");
+  const submitForm = async () => {
+    try {
+      const response = await fetch('/api/diagnostic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        window.open("https://wa.me/556196550552?text=Olá! Vim pelo site e gostaria de solicitar meu diagnóstico de escala.", "_blank");
+      }
+    } catch (err) {
+      console.error("Erro brutal ao enviar dados", err);
+      window.open("https://wa.me/556196550552?text=Olá! Vim pelo site e gostaria de solicitar meu diagnóstico de escala.", "_blank");
+    }
   }
 
   return (
@@ -103,9 +113,9 @@ export default function Diagnostic() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#F24639] to-[#F22471] rounded-full blur-[150px] opacity-15 pointer-events-none [will-change:transform]" />
 
       <div className="relative z-10 w-full max-w-[1400px] px-6 md:px-12 flex flex-col lg:flex-row items-start gap-16 lg:gap-24">
-        
+
         <div className="w-full lg:w-[45%] flex flex-col gap-6 pt-8">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -114,7 +124,7 @@ export default function Diagnostic() {
             <span className="w-1.5 h-1.5 rounded-full bg-[#F22471] animate-pulse" />
             Diagnóstico de Viabilidade
           </motion.div>
-          
+
           <h2 className="text-white text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-[1.05]">
             Sua operação está <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F24639] to-[#F22471]">pronta para o próximo nível?</span>
           </h2>
@@ -125,7 +135,7 @@ export default function Diagnostic() {
         </div>
 
         <div className="w-full lg:w-[55%] relative">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -133,7 +143,7 @@ export default function Diagnostic() {
             className="w-full bg-[#121212]/90 border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden relative lg:backdrop-blur-2xl"
           >
             <div className="w-full h-1 bg-white/5 rounded-full mb-10 relative overflow-hidden">
-              <motion.div 
+              <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-[#F24639] to-[#F22471] origin-left"
                 initial={{ scaleX: 0.25 }}
                 animate={{ scaleX: progressScale }}
@@ -160,22 +170,22 @@ export default function Diagnostic() {
                       </div>
                       <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
-                           <label className="text-white/60 text-sm font-medium">Nome da clínica *</label>
-                           <input 
-                             type="text" 
-                             placeholder="Digite o nome da clínica..."
-                             value={formData.nomeClinica}
-                             onChange={(e) => setFormData(prev => ({...prev, nomeClinica: e.target.value}))}
-                             className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#F22471]/50 transition-all"
-                           />
+                          <label className="text-white/60 text-sm font-medium">Nome da clínica *</label>
+                          <input
+                            type="text"
+                            placeholder="Digite o nome da clínica..."
+                            value={formData.nomeClinica}
+                            onChange={(e) => setFormData(prev => ({ ...prev, nomeClinica: e.target.value }))}
+                            className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#F22471]/50 transition-all"
+                          />
                         </div>
                         <div className="flex flex-col gap-3">
-                           <label className="text-white/60 text-sm font-medium">Quantas consultas sua clínica precisa por mês? *</label>
-                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                              <OptionCard field="faturamento" value="10-20" label="10-20" />
-                              <OptionCard field="faturamento" value="21-35" label="21-35" />
-                              <OptionCard field="faturamento" value="36+" label="36+" />
-                           </div>
+                          <label className="text-white/60 text-sm font-medium">Quantas consultas sua clínica precisa por mês? *</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <OptionCard field="faturamento" value="10-20" label="10-20" />
+                            <OptionCard field="faturamento" value="21-35" label="21-35" />
+                            <OptionCard field="faturamento" value="36+" label="36+" />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -223,24 +233,24 @@ export default function Diagnostic() {
                       </div>
                       <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
-                           <label className="text-white/60 text-sm font-medium">WhatsApp Direto *</label>
-                           <input 
-                             type="tel" 
-                             placeholder="(00) 00000-0000"
-                             value={formData.whatsapp}
-                             onChange={(e) => setFormData(prev => ({...prev, whatsapp: e.target.value}))}
-                             className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-[#F22471]/50 transition-all"
-                           />
+                          <label className="text-white/60 text-sm font-medium">WhatsApp Direto *</label>
+                          <input
+                            type="tel"
+                            placeholder="(00) 00000-0000"
+                            value={formData.whatsapp}
+                            onChange={(e) => setFormData(prev => ({ ...prev, whatsapp: e.target.value }))}
+                            className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-[#F22471]/50 transition-all"
+                          />
                         </div>
                         <div className="flex flex-col gap-2">
-                           <label className="text-white/60 text-sm font-medium">E-mail Comercial Oficial (Opcional)</label>
-                           <input 
-                             type="email" 
-                             placeholder="nome@suaclinica.com.br"
-                             value={formData.email}
-                             onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))}
-                             className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-[#F22471]/50 transition-all"
-                           />
+                          <label className="text-white/60 text-sm font-medium">E-mail Comercial Oficial (Opcional)</label>
+                          <input
+                            type="email"
+                            placeholder="nome@suaclinica.com.br"
+                            value={formData.email}
+                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                            className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-[#F22471]/50 transition-all"
+                          />
                         </div>
                       </div>
                     </div>
@@ -251,7 +261,7 @@ export default function Diagnostic() {
 
             <div className="flex items-center justify-between pt-8 mt-4 border-t border-white/10">
               {step > 1 ? (
-                <button 
+                <button
                   onClick={prevStep}
                   className="cursor-pointer inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors"
                 >
@@ -261,25 +271,23 @@ export default function Diagnostic() {
               ) : <div />}
 
               {step < 4 ? (
-                <button 
+                <button
                   onClick={nextStep}
                   disabled={!isStepValid}
-                  className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                    isStepValid 
-                    ? "text-white bg-white/10 hover:bg-white/20 cursor-pointer" 
-                    : "text-white/20 bg-white/[0.02] cursor-not-allowed opacity-50"
-                  }`}
+                  className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${isStepValid
+                      ? "text-white bg-white/10 hover:bg-white/20 cursor-pointer"
+                      : "text-white/20 bg-white/[0.02] cursor-not-allowed opacity-50"
+                    }`}
                 >
                   <span>Continuar</span>
                   <ArrowRight weight="bold" />
                 </button>
               ) : (
-                <Button 
+                <Button
                   onClick={submitForm}
                   disabled={!isStepValid}
-                  className={`inline-flex items-center gap-2 text-sm md:text-base py-3 px-6 md:px-8 shadow-[0_0_35px_-5px_#F22471] ${
-                    !isStepValid ? "opacity-50 cursor-not-allowed grayscale" : ""
-                  }`}
+                  className={`inline-flex items-center gap-2 text-sm md:text-base py-3 px-6 md:px-8 shadow-[0_0_35px_-5px_#F22471] ${!isStepValid ? "opacity-50 cursor-not-allowed grayscale" : ""
+                    }`}
                 >
                   <CheckCircle weight="fill" className="w-5 h-5" />
                   Enviar Diagnóstico
