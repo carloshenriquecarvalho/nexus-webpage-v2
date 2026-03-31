@@ -8,17 +8,17 @@ const features = [
   {
     title: "Rigor Analítico",
     icon: Crosshair,
-    desc: "Cada centavo investido é rastreado. Tomamos decisões baseadas em probabilidade estatística, eliminando o achismo da sua escala."
+    desc: "Rastreie cada centavo que investe. Conte com decisões baseadas em probabilidade estatística, eliminando o achismo da sua escala."
   },
   {
     title: "Foco em LTV",
     icon: ChartLineUp,
-    desc: "Não buscamos apenas o clique. Estruturamos o funil para que o custo de aquisição (CAC) seja diluído ao longo do tempo de vida do paciente."
+    desc: "Não busque somente por clique. Estruture o funil para que o custo de aquisição (CAC) seja diluído ao longo do tempo de vida do paciente."
   },
   {
     title: "Implementação Ativa",
     icon: HardDrives,
-    desc: "Não entregamos relatórios confusos. Entregamos infraestrutura de marketing pronta para rodar e escalar seu faturamento."
+    desc: "Não perca tempo com relatórios confusos. Receba em mãos uma infraestrutura de marketing pronta para rodar e escalar seu faturamento com dados coerentes."
   }
 ]
 
@@ -36,7 +36,7 @@ export default function Commitment() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-white text-4xl md:text-5xl lg:text-[4rem] font-bold tracking-tighter leading-[1.05]"
           >
-            Somos uma unidade de implementação.
+            Implemente um sistema de faturamento real para sua clínica.
           </motion.h2>
           
           <motion.p 
@@ -46,7 +46,7 @@ export default function Commitment() {
             transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
             className="text-white/70 text-lg md:text-xl leading-relaxed max-w-[65ch]"
           >
-            Enquanto outros prometem &apos;sorte&apos; nos algoritmos, nós aplicamos um framework de engenharia focado em métricas de negócio, não em métricas de vaidade.
+            Não conte com a &apos;sorte&apos; nos algoritmos, conte com engenharia focada em métricas de negócio, não em promessas vazias.
           </motion.p>
         </div>
 

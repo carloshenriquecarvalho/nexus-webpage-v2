@@ -88,7 +88,6 @@ export default function Engine() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-white text-4xl md:text-5xl lg:text-[4rem] font-bold tracking-tighter leading-[1.05]"
           >
-            A Ciência da Escala: <br className="hidden md:block" />
             Do Clique ao LTV Máximo.
           </motion.h2>
           

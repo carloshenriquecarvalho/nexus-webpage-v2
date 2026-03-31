@@ -34,7 +34,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
             className="text-white text-5xl md:text-6xl lg:text-[4.5rem] font-bold tracking-tighter leading-[1.05]"
           >
-            Escalamos sua Clínica com a <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F24639] to-[#F22471]">Precisão da Engenharia.</span>
+            Escale sua Clínica com <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F24639] to-[#F22471]">Precisão de Engenharia.</span>
           </motion.h1>
           
           <motion.p 
@@ -43,7 +43,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             className="text-white/80 text-lg md:text-xl leading-relaxed max-w-[55ch]"
           >
-            Saia da increteza do marketing tradicional. Implementamos um framework científico para transformar dados em agenda cheia e faturamento exponencial para clínicas de alto padrão.
+            Saia da increteza do marketing tradicional. Growth Marketing veio para transformar dados em agenda cheia com faturamento exponencial para clínicas de alto padrão.
           </motion.p>
           
           <motion.div 
