@@ -4,7 +4,6 @@ import Image from "next/image"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { useRef } from "react"
 import { ChartLineUp, Crown, ShieldCheck } from "@phosphor-icons/react"
-import { Button } from "@/components/Button"
 import { SecondaryNavbar } from "@/components/SecondaryNavbar"
 
 export default function AboutUs() {
@@ -95,7 +94,7 @@ export default function AboutUs() {
               <div className="text-zinc-600 text-xs font-bold tracking-widest mb-3 font-mono">02.</div>
               <h4 className="text-2xl font-medium text-white mb-4">Exclusividade</h4>
               <p className="text-zinc-400 leading-relaxed text-lg">
-                Trabalhamos com um número estrito de projetos. Sua clínica não é um número; é uma operação que recebe atenção total.
+                Trabalhamos com uma quantidade estrita de projetos. Sua clínica não é um número, é uma operação que recebe atenção total.
               </p>
             </div>
 
