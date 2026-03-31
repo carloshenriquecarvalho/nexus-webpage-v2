@@ -54,13 +54,11 @@ const steps = [
 export default function Engine() {
   const containerRef = useRef<HTMLDivElement>(null)
   
-  // Rastreia o scroll apenas dentro desta seção
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start center", "end center"]
   })
 
-  // Física de mola para suavizar o preenchimento da linha de luz central
   const smoothProgress = useSpring(scrollYProgress, {
     stiffness: 70,
     damping: 20,
@@ -73,13 +71,11 @@ export default function Engine() {
       ref={containerRef}
       className="relative w-full py-32 md:py-48 bg-[#0D0D0D] overflow-hidden"
     >
-      {/* Grid Técnico de Fundo (The Abstract Engine) */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
       <div className="absolute inset-0 bg-[#0D0D0D] bg-gradient-to-b from-[#0D0D0D] via-transparent to-[#0D0D0D] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 flex flex-col items-center gap-32">
         
-        {/* Cabecalho da Secao */}
         <div className="flex flex-col items-center text-center max-w-4xl gap-6">
           <motion.h2 
             initial={{ opacity: 0, y: 30 }}
@@ -102,13 +98,10 @@ export default function Engine() {
           </motion.p>
         </div>
 
-        {/* Timeline Interativa Central */}
         <div className="relative w-full max-w-5xl mx-auto flex flex-col gap-12 md:gap-24">
           
-          {/* Cordo fotônica no Fundo (Linha estática) */}
           <div className="absolute left-6 md:left-1/2 top-4 bottom-4 w-[2px] bg-white/[0.05] -translate-x-1/2" />
-          
-          {/* Fio de Luz Preenchedor Dinâmico (Sobe com o Scroll) */}
+
           <motion.div 
             style={{ scaleY: smoothProgress, transformOrigin: 'top' }}
             className="absolute left-6 md:left-1/2 top-4 bottom-4 w-[4px] bg-gradient-to-b from-[#F24639] via-[#F22471] to-[#F22471] -translate-x-1/2 shadow-[0_0_20px_#F22471] z-0 rounded-full" 
@@ -123,10 +116,8 @@ export default function Engine() {
                 className={`relative flex flex-col md:flex-row items-center w-full gap-8 md:gap-16 z-10 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
               >
                 
-                {/* Metade Vazia (Desktop) para forçar o card para o outro lado */}
                 <div className="hidden md:block md:w-1/2" />
 
-                {/* Nóda Central (Onde a luz passa) */}
                 <div className="absolute left-6 md:left-1/2 w-4 h-4 rounded-full bg-[#121212] border-2 border-white/20 -translate-x-1/2 z-20 flex items-center justify-center">
                    {/* Ponto Píxel de Luz dentro do Nó (Acende quando o scroll passa) */}
                    <motion.div 
@@ -135,7 +126,6 @@ export default function Engine() {
                    />
                 </div>
 
-                {/* Card de Conteúdo */}
                 <motion.div 
                   initial={{ opacity: 0, x: isEven ? 50 : -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -145,7 +135,6 @@ export default function Engine() {
                 >
                   <div className="relative p-8 md:p-12 border border-white/10 bg-white/[0.02] backdrop-blur-md rounded-3xl overflow-hidden hover:bg-white/[0.04] transition-colors duration-500">
                     
-                    {/* Ghost Number Enorme de Fundo */}
                     <div className="absolute -bottom-6 -right-2 text-white/[0.03] text-[10rem] font-black leading-none pointer-events-none tracking-tighter transition-all duration-700 group-hover:text-white/[0.06] group-hover:-translate-y-4">
                       {step.num}
                     </div>

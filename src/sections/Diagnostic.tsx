@@ -93,6 +93,11 @@ export default function Diagnostic() {
     )
   }
 
+  const submitForm = () => {
+    
+    window.open("https://wa.me/556196550552?text=Olá! Vim pelo site e gostaria de solicitar meu diagnóstico de escala.", "_blank");
+  }
+
   return (
     <section className="relative w-full py-32 md:py-48 bg-[#0D0D0D] overflow-hidden flex justify-center" id="diagnostic">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#F24639] to-[#F22471] rounded-full blur-[150px] opacity-15 pointer-events-none [will-change:transform]" />
@@ -270,7 +275,7 @@ export default function Diagnostic() {
                 </button>
               ) : (
                 <Button 
-                  onClick={() => window.open("https://wa.me/556196550552?text=Olá! Vim pelo site e gostaria de solicitar meu diagnóstico de escala.", "_blank")}
+                  onClick={submitForm}
                   disabled={!isStepValid}
                   className={`inline-flex items-center gap-2 text-sm md:text-base py-3 px-6 md:px-8 shadow-[0_0_35px_-5px_#F22471] ${
                     !isStepValid ? "opacity-50 cursor-not-allowed grayscale" : ""

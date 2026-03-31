@@ -9,7 +9,6 @@ import Footer from "@/sections/Footer"
 export default function Home() {
   return (
     <main className="min-h-screen bg-[var(--background)] flex flex-col items-center selection:bg-[var(--accent)] selection:text-white">
-      {/* Navigation Layer */}
       <nav className="fixed top-0 w-full p-6 z-50 flex items-center justify-between pointer-events-none">
         <div className="liquid-glass px-4 py-3 rounded-2xl pointer-events-auto flex items-center justify-center">
           <a href="#hero">
@@ -25,7 +24,6 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Sections */}
       <Hero />
       <Commitment />
       <Engine />

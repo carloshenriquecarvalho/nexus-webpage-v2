@@ -51,12 +51,10 @@ export default function Infrastructure() {
   return (
     <section className="relative w-full py-32 md:py-48 bg-[#121212] overflow-hidden">
       
-      {/* Luz ambiente de fundo */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[400px] bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none rounded-full blur-[100px]" />
 
       <div className="relative w-full max-w-[1400px] mx-auto px-6 md:px-12 flex flex-col gap-20 z-10">
         
-        {/* Header da Seção */}
         <div className="flex flex-col max-w-3xl gap-4">
           <motion.span 
             initial={{ opacity: 0, y: 15 }}
@@ -77,7 +75,6 @@ export default function Infrastructure() {
           </motion.h2>
         </div>
 
-        {/* Grid Staggered */}
         <motion.div 
           variants={containerVariants}
           initial="hidden"

@@ -23,7 +23,6 @@ export default function Ecosystem() {
     <section className="relative w-full py-32 md:py-48 bg-[#121212] overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex flex-col gap-24">
         
-        {/* Copywriting Section */}
         <div className="flex flex-col items-center text-center max-w-3xl mx-auto gap-6">
           <motion.span 
             initial={{ opacity: 0, y: 10 }}
@@ -55,7 +54,6 @@ export default function Ecosystem() {
           </motion.p>
         </div>
 
-        {/* Small Data Counter (Destaque de Resultado) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-12 border-y border-white/5">
           {metrics.map((item, idx) => (
             <motion.div 
@@ -66,7 +64,6 @@ export default function Ecosystem() {
               transition={{ delay: 0.1 * idx }}
               className="flex flex-col items-center text-center gap-3 relative group"
             >
-              {/* O brilho abstrato de fundo sobre hover */}
               <div className="absolute inset-0 bg-gradient-to-b from-[#F22471]/0 via-[#F22471]/[0.02] to-transparent group-hover:from-[#F22471]/[0.08] transition-colors duration-500 rounded-3xl -z-10 blur-xl" />
               
               <span className="text-4xl md:text-6xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#F24639] to-[#F22471]">
@@ -79,7 +76,6 @@ export default function Ecosystem() {
           ))}
         </div>
 
-        {/* Grade de Parceiros / Logos (Fade In Coordenado) */}
         <div className="w-full flex flex-col items-center gap-12 pt-8">
           <div className="grid grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-12 items-center justify-items-center w-full max-w-6xl">
              {logos.map((logo, idx) => (
@@ -92,10 +88,8 @@ export default function Ecosystem() {
                  className="group flex flex-col items-center justify-center gap-3 opacity-40 hover:opacity-100 transition-all duration-500 cursor-default"
                >
                  <div className="relative flex items-center justify-center">
-                   {/* Brilho rosa irradiando por trás do ícone no hover */}
                    <div className="absolute inset-0 bg-[#F22471] blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500 rounded-full" />
                    
-                   {/* Ícone puro 40% opacidade branco e rosa luminoso ao hover */}
                    <logo.icon weight="duotone" className="w-10 h-10 md:w-12 md:h-12 text-white group-hover:text-white transition-colors duration-500 relative z-10" />
                  </div>
                  

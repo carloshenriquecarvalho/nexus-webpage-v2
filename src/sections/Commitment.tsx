@@ -50,10 +50,8 @@ export default function Commitment() {
           </motion.p>
         </div>
 
-        {/* Blueprint Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-b border-white/5 relative">
           
-          {/* Fio de Neônio Abstrato e Sutil (O Blueprint Line Horizontal) */}
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#F24639]/50 to-transparent" />
 
           {features.map((item, idx) => (

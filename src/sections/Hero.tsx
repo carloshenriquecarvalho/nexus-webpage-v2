@@ -12,11 +12,9 @@ export default function Hero() {
   };
   return (
     <section className="relative w-full min-h-[100dvh] bg-[#0D0D0D] overflow-hidden flex items-center" id="hero">
-      
-      {/* Container Principal 60/40 */}
+     
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 flex flex-col lg:flex-row items-center justify-between gap-16 py-32">
         
-        {/* Lado Esquerdo: Textos (60%) */}
         <div className="w-full lg:w-[60%] flex flex-col items-start gap-8 z-20">
           
           <motion.div 
@@ -62,13 +60,10 @@ export default function Hero() {
 
         </div>
 
-        {/* Lado Direito: O Objeto de Poder (40%) - Otimizado para Performance */}
         <div className="w-full lg:w-[40%] aspect-square relative flex items-center justify-center">
           
-          {/* Fundo de luz (Neon Glow) - Estático ou com opacidade simples para poupar GPU */}
           <div className="absolute w-[300px] h-[300px] bg-gradient-to-tr from-[#F24639] to-[#F22471] rounded-full blur-[120px] opacity-20" />
 
-          {/* Estrutura Geométrica Abstrata com Hardware Acceleration */}
           <div className="relative z-10 w-full h-full flex items-center justify-center transform perspective-1000 [backface-visibility:hidden]">
             
             {/* Núcleo Pulsante Primário */}
@@ -81,28 +76,24 @@ export default function Hero() {
               className="absolute w-24 h-24 bg-gradient-to-br from-[#F24639] to-[#F22471] rounded-full blur-md opacity-80 shadow-[0_0_50px_rgba(242,36,113,0.4)] [will-change:transform,opacity]"
             />
 
-            {/* Anel 1 - Externo (Otimizado: Backdrop-blur apenas em Desktop) */}
             <motion.div 
               animate={{ rotateZ: 360, rotateX: 75, rotateY: 15 }}
               transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
               className="absolute w-80 h-80 rounded-full border border-white/10 border-t-[#F24639] bg-white/[0.02] lg:backdrop-blur-sm [will-change:transform]"
             />
 
-            {/* Anel 2 - Médio */}
             <motion.div 
               animate={{ rotateZ: -360, rotateX: 65, rotateY: -25 }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               className="absolute w-60 h-60 rounded-full border border-white/20 border-b-[#F22471] bg-white/[0.03] lg:backdrop-blur-md [will-change:transform]"
             />
 
-            {/* Anel 3 - Interno */}
             <motion.div 
               animate={{ rotateZ: 360, rotateX: 45, rotateY: 45 }}
               transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
               className="absolute w-40 h-40 rounded-full border border-white/30 border-l-[#F22471] bg-white/[0.05] [will-change:transform]"
             />
 
-            {/* Partículas de Dados (Uso de Hardware Acceleration para evitar stuttering) */}
             {[...Array(5)].map((_, i) => (
               <motion.div
                 key={i}
@@ -125,7 +116,6 @@ export default function Hero() {
 
       </div>
       
-      {/* Isolamento Visual para Soft Transition */}
       <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#0D0D0D] to-transparent pointer-events-none" />
     </section>
   )
