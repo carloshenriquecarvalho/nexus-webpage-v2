@@ -226,7 +226,7 @@ export default function MethodPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            Solicitar Diagnóstico Técnico
+            Solicitar Diagnóstico
             <TrendUp className="w-6 h-6 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
           </motion.a>
         </motion.div>
