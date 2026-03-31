@@ -21,8 +21,10 @@ export default function Footer() {
               <Image
                 src="/logo-colorida.png"
                 alt="Nexus"
-                width={60}
-                height={40}
+                width={300}
+                height={100}
+                quality={100}
+                unoptimized
                 className="h-8 md:h-10 w-auto object-contain"
                 priority
               />
