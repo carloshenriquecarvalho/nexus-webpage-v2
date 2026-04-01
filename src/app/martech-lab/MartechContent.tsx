@@ -1,6 +1,5 @@
-﻿"use client"
+"use client"
 
-import Link from "next/link"
 import { type ChangeEvent, type DragEvent, useMemo, useState } from "react"
 import { parse, type ParseResult } from "papaparse"
 import {
@@ -20,14 +19,6 @@ import {
 import { CheckCircle2, CloudUpload, X } from "lucide-react"
 import { DownloadSimple } from "@phosphor-icons/react"
 import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  pdf,
-} from "@react-pdf/renderer"
-import {
   MarketingMetrics,
   aggregateMarketingMetrics,
   normalizeCsvRows,
@@ -35,9 +26,7 @@ import {
   validateCsvHeaders,
 } from "@/lib/marketingMetrics"
 
-const tabs = ["Dashboard", "Upload de Dados", "Warnings & Insights"] as const
-
-type Tab = (typeof tabs)[number]
+type Tab = "Dashboard" | "Upload de Dados" | "Warnings & Insights"
 
 type UploadStatus = {
   label: string
@@ -233,242 +222,6 @@ function buildUploadDetails(
         {renderTablePreview(data)}
       </div>
     </div>
-  )
-}
-
-function getExecutivePdfStyles() {
-  return StyleSheet.create({
-    page: {
-      padding: 24,
-      fontSize: 12,
-      fontFamily: "Helvetica",
-      color: "#111111",
-      backgroundColor: "#ffffff",
-    },
-    header: {
-      marginBottom: 20,
-    },
-    title: {
-      fontSize: 20,
-      fontWeight: "bold",
-      marginBottom: 6,
-      color: "#111111",
-    },
-    subtitle: {
-      fontSize: 10,
-      color: "#555555",
-      marginBottom: 16,
-    },
-    cardGrid: {
-      display: "flex",
-      flexWrap: "wrap",
-      justifyContent: "space-between",
-      gap: 8,
-      marginBottom: 16,
-    },
-    card: {
-      width: "48%",
-      padding: 10,
-      borderWidth: 1,
-      borderColor: "#e5e7eb",
-      borderRadius: 6,
-      backgroundColor: "#fafafa",
-      marginBottom: 8,
-    },
-    cardLabel: {
-      fontSize: 10,
-      color: "#6b7280",
-      marginBottom: 4,
-    },
-    cardValue: {
-      fontSize: 14,
-      fontWeight: "bold",
-      color: "#111111",
-    },
-    warningItem: {
-      padding: 10,
-      borderWidth: 1,
-      borderColor: "#e5e7eb",
-      borderRadius: 6,
-      marginBottom: 10,
-    },
-    warningTitle: {
-      fontSize: 12,
-      fontWeight: "bold",
-      marginBottom: 4,
-    },
-    warningSeverity: {
-      fontSize: 10,
-      color: "#9b1c1c",
-      marginBottom: 4,
-    },
-    warningText: {
-      fontSize: 10,
-      color: "#333333",
-      marginBottom: 4,
-    },
-    section: {
-      marginBottom: 18,
-    },
-    sectionTitle: {
-      fontSize: 14,
-      fontWeight: "bold",
-      marginBottom: 10,
-      color: "#111111",
-    },
-    table: {
-      width: "100%",
-      borderWidth: 1,
-      borderColor: "#e5e7eb",
-      borderStyle: "solid",
-      marginBottom: 16,
-    },
-    tableRow: {
-      flexDirection: "row",
-      borderBottomWidth: 1,
-      borderBottomColor: "#e5e7eb",
-      borderBottomStyle: "solid",
-    },
-    tableHeader: {
-      width: "12.5%",
-      padding: 6,
-      fontSize: 9,
-      fontWeight: "bold",
-      color: "#111111",
-      borderRightWidth: 1,
-      borderRightColor: "#e5e7eb",
-      borderRightStyle: "solid",
-    },
-    tableHeaderWide: {
-      width: "20%",
-      padding: 6,
-      fontSize: 9,
-      fontWeight: "bold",
-      color: "#111111",
-      borderRightWidth: 1,
-      borderRightColor: "#e5e7eb",
-      borderRightStyle: "solid",
-    },
-    tableCell: {
-      width: "12.5%",
-      padding: 6,
-      fontSize: 9,
-      color: "#333333",
-      borderRightWidth: 1,
-      borderRightColor: "#e5e7eb",
-      borderRightStyle: "solid",
-    },
-    tableCellWide: {
-      width: "20%",
-      padding: 6,
-      fontSize: 9,
-      color: "#333333",
-      borderRightWidth: 1,
-      borderRightColor: "#e5e7eb",
-      borderRightStyle: "solid",
-    },
-    smallText: {
-      fontSize: 10,
-      color: "#555555",
-    },
-  })
-}
-
-function ExecutiveReportDocument({
-  overallSummary,
-  warnings,
-  periodChannelSummaries,
-}: {
-  overallSummary: MarketingMetrics
-  warnings: InsightWarning[]
-  periodChannelSummaries: Array<{ period: string; channel: string; summary: MarketingMetrics }>
-}) {
-  const styles = getExecutivePdfStyles()
-
-  return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Nexus Tecnologia e Inovação</Text>
-          <Text style={styles.subtitle}>Relatório Executivo de Performance de Marketing</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Sumário de Performance</Text>
-          <View style={styles.cardGrid}>
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>Investimento Total</Text>
-              <Text style={styles.cardValue}>{formatCurrency(overallSummary.investimento)}</Text>
-            </View>
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>Leads</Text>
-              <Text style={styles.cardValue}>{overallSummary.leads}</Text>
-            </View>
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>Conversões</Text>
-              <Text style={styles.cardValue}>{overallSummary.conversoes}</Text>
-            </View>
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>Faturamento Total</Text>
-              <Text style={styles.cardValue}>{formatCurrency(overallSummary.faturamento)}</Text>
-            </View>
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>CPL Médio</Text>
-              <Text style={styles.cardValue}>{formatCurrency(overallSummary.cpl)}</Text>
-            </View>
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>ROAS Geral</Text>
-              <Text style={styles.cardValue}>{overallSummary.roas > 0 ? overallSummary.roas.toFixed(2) : "N/A"}</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>O Diagnóstico</Text>
-          <Text style={styles.smallText}>
-            “Métricas isoladas mentem. Inteligência de marketing é conectar os pontos”.
-          </Text>
-          {warnings.length ? warnings.map((warning, index) => (
-            <View key={index} style={styles.warningItem}>
-              <Text style={styles.warningTitle}>{warning.title}</Text>
-              <Text style={styles.warningSeverity}>Severidade: {warning.severity.toUpperCase()}</Text>
-              <Text style={styles.warningText}>{warning.explanation}</Text>
-              <Text style={styles.warningText}>Recomendação: {warning.recommendation}</Text>
-            </View>
-          )) : (
-            <Text style={styles.smallText}>Nenhum alerta crítico detectado no momento.</Text>
-          )}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Tabela Detalhada</Text>
-          <View style={styles.table}>
-            <View style={styles.tableRow}>
-              <Text style={styles.tableHeaderWide}>Período</Text>
-              <Text style={styles.tableHeader}>Canal</Text>
-              <Text style={styles.tableHeader}>Invest.</Text>
-              <Text style={styles.tableHeader}>Leads</Text>
-              <Text style={styles.tableHeader}>Conv.</Text>
-              <Text style={styles.tableHeader}>Fatur.</Text>
-              <Text style={styles.tableHeader}>CPL</Text>
-              <Text style={styles.tableHeader}>ROAS</Text>
-            </View>
-            {periodChannelSummaries.map((item, index) => (
-              <View key={`${item.period}-${item.channel}-${index}`} style={styles.tableRow}>
-                <Text style={styles.tableCellWide}>{formatPeriodLabel(item.period)}</Text>
-                <Text style={styles.tableCell}>{item.channel}</Text>
-                <Text style={styles.tableCell}>{formatCurrency(item.summary.investimento)}</Text>
-                <Text style={styles.tableCell}>{item.summary.leads}</Text>
-                <Text style={styles.tableCell}>{item.summary.conversoes}</Text>
-                <Text style={styles.tableCell}>{formatCurrency(item.summary.faturamento)}</Text>
-                <Text style={styles.tableCell}>{formatCurrency(item.summary.cpl)}</Text>
-                <Text style={styles.tableCell}>{item.summary.roas > 0 ? item.summary.roas.toFixed(2) : "N/A"}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      </Page>
-    </Document>
   )
 }
 
@@ -793,8 +546,7 @@ function buildPeriodSummaryTable(summaryA: MarketingMetrics, summaryB: Marketing
   )
 }
 
-export default function MartechLabPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("Upload de Dados")
+export default function MartechContent({ activeTab, setActiveTab }: { activeTab: Tab; setActiveTab: (t: Tab) => void }) {
   const [data, setData] = useState<MarketingMetrics[]>([])
   const [status, setStatus] = useState<UploadStatus>(buildInitialStatus())
   const [errorMessage, setErrorMessage] = useState<string>("")
@@ -916,27 +668,8 @@ export default function MartechLabPage() {
 
     setIsExportingPdf(true)
     try {
-      const reportElement = (
-        <ExecutiveReportDocument
-          overallSummary={overallSummary}
-          warnings={warningItems}
-          periodChannelSummaries={periodChannelSummaries}
-        />
-      )
-
-      const blob = await pdf(reportElement).toBlob()
-      if (!blob) {
-        throw new Error("Falha ao gerar o PDF.")
-      }
-
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = "relatorio-executivo-martech.pdf"
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-      URL.revokeObjectURL(url)
+      const { generateAndDownloadPdf } = await import("./exportPdf")
+      await generateAndDownloadPdf(overallSummary, warningItems, periodChannelSummaries)
     } catch (error) {
       console.error(error)
     } finally {
@@ -945,58 +678,7 @@ export default function MartechLabPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0D0D0D] px-6 py-10 text-white">
-      <div className="mx-auto max-w-7xl">
-        <div className="rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-10 shadow-[0_40px_120px_rgba(0,0,0,0.35)]">
-          <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm uppercase tracking-[0.24em] text-zinc-300">
-                Nexus • Martech Intelligence
-              </span>
-              <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white">Dashboard de Inteligência de Marketing</h1>
-              <p className="mt-4 max-w-2xl text-zinc-400">
-                Carregue um único CSV com campo de data ou mês para analisar períodos automaticamente e gerar alertas inteligentes.
-              </p>
-            </div>
-            <div className="rounded-[2rem] bg-gradient-to-r from-[#F24639] to-[#F22471] px-6 py-5 text-sm font-semibold text-[#0d0d0d] shadow-[0_20px_60px_rgba(242,36,113,0.24)]">
-              Use colunas em português ou inglês. A data é inferida automaticamente pelo campo de período.
-            </div>
-          </div>
-
-          <div className="mb-10 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-3">
-              {tabs.map(tab => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className={classNames(
-                    "rounded-3xl cursor-pointer px-5 py-3 text-sm font-medium transition",
-                    activeTab === tab
-                      ? "bg-gradient-to-r from-[#F24639] to-[#F22471] text-white shadow-[0_20px_40px_rgba(242,36,113,0.25)]"
-                      : "border border-white/10 bg-white/5 text-zinc-300 hover:border-white/20 hover:bg-white/10",
-                  )}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/"
-                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                Voltar para a página inicial
-              </Link>
-              <button
-                type="button"
-                onClick={downloadExampleCsv}
-                className="inline-flex cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-[#F24639] to-[#F22471] px-6 py-3 text-sm font-semibold text-[#0d0d0d] transition hover:brightness-110"
-              >
-                Baixar CSV Modelo
-              </button>
-            </div>
-          </div>
+    <>
 
           {activeTab === "Dashboard" && (
             <section className="space-y-8">
@@ -1197,8 +879,6 @@ export default function MartechLabPage() {
               )}
             </section>
           )}
-        </div>
-      </div>
-    </main>
+    </>
   )
 }

@@ -1,19 +1,80 @@
-﻿'use client';
+'use client';
+import { useState } from "react"
+import Link from "next/link"
 import dynamic from "next/dynamic"
 
-const MartechLabClient = dynamic(() => import("./MartechLabClient"), {
+const tabs = ["Dashboard", "Upload de Dados", "Warnings & Insights"] as const
+type Tab = (typeof tabs)[number]
+
+const MartechContent = dynamic(() => import("./MartechContent"), {
   ssr: false,
   loading: () => (
-    <main className="min-h-screen bg-[#0D0D0D] px-6 py-10 text-white">
-      <div className="mx-auto max-w-7xl">
-        <div className="rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-10 text-center text-zinc-300">
-          Carregando o Martech Lab...
-        </div>
+    <div className="flex h-[500px] w-full items-center justify-center rounded-[2rem] border border-white/10 bg-[#111111] p-10 text-zinc-400">
+      <div className="flex flex-col items-center gap-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-500 border-t-[#F24639]" />
+        <p>Iniciando o motor de Inteligência de Marketing...</p>
       </div>
-    </main>
+    </div>
   ),
 })
 
-export default function Page() {
-  return <MartechLabClient />
+function classNames(...values: Array<string | boolean | undefined>) {
+  return values.filter(Boolean).join(" ")
+}
+
+export default function MartechLabPage() {
+  const [activeTab, setActiveTab] = useState<Tab>("Upload de Dados")
+
+  return (
+    <main className="min-h-screen bg-[#0D0D0D] px-4 py-8 sm:px-6 sm:py-10 text-white">
+      <div className="mx-auto max-w-7xl">
+        <div className="rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-6 sm:p-10 shadow-[0_40px_120px_rgba(0,0,0,0.35)]">
+          <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm uppercase tracking-[0.24em] text-zinc-300">
+                Nexus • Martech Intelligence
+              </span>
+              <h1 className="mt-6 text-3xl sm:text-4xl font-semibold tracking-tight text-white">Dashboard de Inteligência de Marketing</h1>
+              <p className="mt-4 max-w-2xl text-zinc-400 text-sm sm:text-base">
+                Carregue um único CSV com campo de data ou mês para analisar períodos automaticamente e gerar alertas inteligentes.
+              </p>
+            </div>
+            <div className="rounded-[2rem] bg-gradient-to-r from-[#F24639] to-[#F22471] px-6 py-5 text-sm font-semibold text-[#0d0d0d] shadow-[0_20px_60px_rgba(242,36,113,0.24)] lg:max-w-xs">
+              Use colunas em português ou inglês. A data é inferida automaticamente pelo campo de período.
+            </div>
+          </div>
+
+          <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              {tabs.map(tab => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setActiveTab(tab)}
+                  className={classNames(
+                    "rounded-3xl cursor-pointer px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition",
+                    activeTab === tab
+                      ? "bg-gradient-to-r from-[#F24639] to-[#F22471] text-white shadow-[0_20px_40px_rgba(242,36,113,0.25)]"
+                      : "border border-white/10 bg-white/5 text-zinc-300 hover:border-white/20 hover:bg-white/10",
+                  )}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/"
+                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Voltar para a página inicial
+              </Link>
+            </div>
+          </div>
+
+          <MartechContent activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+      </div>
+    </main>
+  )
 }
