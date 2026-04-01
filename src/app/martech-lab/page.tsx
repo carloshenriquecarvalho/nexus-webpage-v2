@@ -22,6 +22,42 @@ function classNames(...values: Array<string | boolean | undefined>) {
   return values.filter(Boolean).join(" ")
 }
 
+function buildSampleCsv() {
+  const rows = [
+    [
+      "periodo",
+      "campanha",
+      "canal",
+      "investimento",
+      "impressoes",
+      "cliques",
+      "leads",
+      "conversoes",
+      "faturamento",
+    ],
+    ["2025-01", "Lançamento A", "Google Ads", "12000", "250000", "4200", "220", "40", "120000"],
+    ["2025-02", "Campanha B", "Facebook Ads", "9000", "180000", "3100", "180", "28", "98000"],
+    ["2025-03", "Promoção C", "LinkedIn", "15000", "140000", "1900", "95", "18", "68000"],
+    ["2025-04", "Remarketing D", "Instagram", "8000", "95000", "1600", "110", "20", "69000"],
+    ["2025-05", "Retargeting E", "YouTube", "10000", "130000", "2100", "150", "25", "87500"],
+  ]
+
+  return rows.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(",")).join("\r\n")
+}
+
+function downloadExampleCsv() {
+  const csv = buildSampleCsv()
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = url
+  link.download = "martech-lab-modelo.csv"
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
 export default function MartechLabPage() {
   const [activeTab, setActiveTab] = useState<Tab>("Upload de Dados")
 
@@ -69,6 +105,13 @@ export default function MartechLabPage() {
               >
                 Voltar para a página inicial
               </Link>
+              <button
+                type="button"
+                onClick={downloadExampleCsv}
+                className="inline-flex cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-[#F24639] to-[#F22471] px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-[#0d0d0d] transition hover:brightness-110"
+              >
+                Baixar CSV Modelo
+              </button>
             </div>
           </div>
 
