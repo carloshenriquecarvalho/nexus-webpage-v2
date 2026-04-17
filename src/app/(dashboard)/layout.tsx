@@ -35,8 +35,22 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             <span>Boletos</span>
           </a>
           <a
+            href="/crm"
+            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/50 hover:text-[var(--accent)]"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M8 7v6"/><path d="M16 7v10"/></svg>
+            <span>CRM</span>
+          </a>
+          <a
+            href="/martech-lab"
+            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm"
+          >
+            <Globe size={16} className="text-white/50" />
+            <span>Martech Lab</span>
+          </a>
+          <a
             href="/"
-            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all text-sm"
+            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl mt-auto text-white/50 hover:text-white hover:bg-white/5 transition-all text-sm"
           >
             <Globe size={16} />
             <span>Voltar ao site</span>
