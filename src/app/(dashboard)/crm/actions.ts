@@ -93,6 +93,67 @@ export async function updateDealStage(dealId: string, stageId: string, position:
   return { success: true };
 }
 
+export async function deleteDeal(dealId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('crm_deals')
+    .delete()
+    .eq('id', dealId);
+
+  if (error) {
+    console.error('Error deleting deal:', error);
+    return { success: false, error };
+  }
+  revalidatePath('/crm');
+  return { success: true };
+}
+
+// ── NOTES ──────────────────────────────────────────
+
+export async function getNotesByDeal(dealId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('crm_deal_notes')
+    .select('id, content, created_at')
+    .eq('deal_id', dealId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching notes:', error);
+    return [];
+  }
+  return data;
+}
+
+export async function addDealNote(dealId: string, content: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('crm_deal_notes')
+    .insert([{ deal_id: dealId, content }])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error adding note:', error);
+    return { success: false, error };
+  }
+  return { success: true, data };
+}
+
+export async function deleteDealNote(noteId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('crm_deal_notes')
+    .delete()
+    .eq('id', noteId);
+
+  if (error) {
+    console.error('Error deleting note:', error);
+    return { success: false, error };
+  }
+  return { success: true };
+}
+
 export async function createDeal(data: {
   title: string;
   value: number;
@@ -114,15 +175,117 @@ export async function createDeal(data: {
 
   const position = lastDeal ? lastDeal.position + 1 : 0;
 
-  const { error } = await supabase
+  const { data: newDeal, error } = await supabase
     .from('crm_deals')
-    .insert([{ ...data, position }]);
+    .insert([{ ...data, position }])
+    .select()
+    .single();
 
   if (error) {
     console.error('Error creating deal:', error);
     return { success: false, error };
   }
 
+  revalidatePath('/crm');
+  return { success: true, data: newDeal };
+}
+
+export async function updateDeal(dealId: string, data: {
+  title: string;
+  value: number;
+  status: string;
+  contact_id: string | null;
+}) {
+  const supabase = await createClient();
+  const { data: updated, error } = await supabase
+    .from('crm_deals')
+    .update({
+      ...data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', dealId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating deal:', error);
+    return { success: false, error };
+  }
+
+  revalidatePath('/crm');
+  return { success: true, data: updated };
+}
+
+export async function getContacts(companyId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('crm_contacts')
+    .select('id, name, email, phone, custom_fields, created_at')
+    .eq('company_id', companyId)
+    .order('name', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching contacts:', error);
+    return [];
+  }
+  return data;
+}
+
+export async function createContact(data: {
+  company_id: string;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  custom_fields?: Record<string, string> | null;
+}) {
+  const supabase = await createClient();
+  const { data: contact, error } = await supabase
+    .from('crm_contacts')
+    .insert([data])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating contact:', error);
+    return { success: false, error };
+  }
+  revalidatePath('/crm');
+  return { success: true, data: contact };
+}
+
+export async function updateContact(contactId: string, data: {
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  custom_fields?: Record<string, string> | null;
+}) {
+  const supabase = await createClient();
+  const { data: updated, error } = await supabase
+    .from('crm_contacts')
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq('id', contactId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating contact:', error);
+    return { success: false, error };
+  }
+  revalidatePath('/crm');
+  return { success: true, data: updated };
+}
+
+export async function deleteContact(contactId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('crm_contacts')
+    .delete()
+    .eq('id', contactId);
+
+  if (error) {
+    console.error('Error deleting contact:', error);
+    return { success: false, error };
+  }
   revalidatePath('/crm');
   return { success: true };
 }

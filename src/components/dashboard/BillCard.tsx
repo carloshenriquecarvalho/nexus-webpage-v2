@@ -3,7 +3,7 @@
 import React, { useTransition } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Trash2, Calendar, Tag, Pencil, CalendarCheck2, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { Trash2, Calendar, Tag, Pencil, CalendarCheck2, CheckCircle2, Clock, AlertCircle, FileText, Hash } from "lucide-react";
 import type { Bill, BillStatus } from "@/types/database";
 
 interface BillCardProps {
@@ -56,7 +56,7 @@ export function BillCard({ bill, deleteAction, onEdit }: BillCardProps) {
     startTransition(async () => {
       const result = await deleteAction(formData);
       if (result?.error) toast.error("Erro ao excluir", { description: result.error });
-      else toast.success("Boleto removido.");
+      else toast.success("Lançamento removido.");
     });
   };
 
@@ -66,9 +66,9 @@ export function BillCard({ bill, deleteAction, onEdit }: BillCardProps) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -10 }}
-      className="group flex items-center justify-between gap-3 p-4 bg-white/3 hover:bg-white/6 border border-white/8 hover:border-white/12 rounded-xl transition-all duration-200"
+      className="group flex flex-col md:flex-row items-start md:items-center justify-between gap-3 p-4 bg-white/3 hover:bg-white/6 border border-white/8 hover:border-white/12 rounded-xl transition-all duration-200"
     >
-      <div className="flex items-center gap-3 min-w-0 flex-1">
+      <div className="flex items-start md:items-center gap-3 min-w-0 flex-1 w-full">
         {/* Status badge */}
         <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium flex-shrink-0 ${s.text} ${s.bg} ${s.border}`}>
           {s.icon}
@@ -77,55 +77,73 @@ export function BillCard({ bill, deleteAction, onEdit }: BillCardProps) {
 
         {/* Info */}
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-white/90 truncate leading-tight">{bill.title}</p>
-          <div className="flex items-center gap-3 mt-1 flex-wrap">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-white/90 truncate leading-tight">{bill.description}</p>
+            {bill.pdf_url && (
+              <a 
+                href={bill.pdf_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-1 rounded bg-white/5 text-white/40 hover:text-[#F22471] hover:bg-[#F22471]/10 transition-all"
+                title="Ver anexo"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FileText size={12} />
+              </a>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-3 mt-1.5 flex-wrap">
             {bill.overdue_date && (
-              <span className="flex items-center gap-1 text-xs text-white/40">
+              <span className="flex items-center gap-1 text-[11px] text-white/40">
                 <Calendar size={10} />
                 <span>Vence {formatDate(bill.overdue_date)}</span>
               </span>
             )}
             {bill.payment_date && (
-              <span className="flex items-center gap-1 text-xs text-emerald-400/70">
+              <span className="flex items-center gap-1 text-[11px] text-emerald-400/70">
                 <CalendarCheck2 size={10} />
-                <span>Pago em {formatDate(bill.payment_date)}</span>
+                <span>Pago {formatDate(bill.payment_date)}</span>
               </span>
             )}
-            {bill.tag && (
-              <span className="flex items-center gap-1 text-xs text-white/30">
+            {bill.category && (
+              <span className="flex items-center gap-1 text-[11px] text-white/30 truncate max-w-[120px]">
                 <Tag size={10} />
-                <span>{bill.tag}</span>
+                <span className="truncate">{bill.category}</span>
               </span>
             )}
-            {bill.google_event_id && (
-              <span className="text-xs text-[#F22471]/60">● Calendar</span>
+            {bill.cost_center && (
+              <span className="flex items-center gap-1 text-[11px] text-[#F22471]/50 truncate max-w-[150px]">
+                <Hash size={10} />
+                <span className="truncate">{bill.cost_center}</span>
+              </span>
             )}
           </div>
         </div>
       </div>
 
       {/* Right side */}
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <span className="text-sm font-bold text-white">{formatCurrency(bill.amount)}</span>
+      <div className="flex items-center justify-between md:justify-end gap-4 flex-shrink-0 w-full md:w-auto mt-2 md:mt-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/5">
+        <span className="text-base font-bold text-white tracking-tight">{formatCurrency(bill.amount)}</span>
 
-        {/* Hidden action buttons */}
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Actions */}
+        <div className="flex gap-1.5 opacity-60 md:opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onEdit(bill)}
-            className="cursor-pointer w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-white hover:bg-white/10 transition-all"
+            className="cursor-pointer w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all"
             title="Editar"
           >
-            <Pencil size={12} />
+            <Pencil size={13} />
           </button>
           <form action={handleDelete}>
             <input type="hidden" name="id" value={bill.id} />
             <button
               type="submit"
               disabled={isPending}
-              className="cursor-pointer w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-[#F24639] hover:bg-[#F24639]/10 transition-all disabled:opacity-30"
+              className="cursor-pointer w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-[#F24639] hover:bg-[#F24639]/10 transition-all disabled:opacity-30"
               title="Excluir"
             >
-              <Trash2 size={12} />
+              <Trash2 size={13} />
             </button>
           </form>
         </div>

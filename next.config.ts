@@ -2,6 +2,9 @@
 const nextConfig = {
   experimental: {
     optimizeCss: true,
+    serverActions: {
+      bodySizeLimit: "6mb",
+    },
   },
   images: {
     formats: ["image/avif", "image/webp"],

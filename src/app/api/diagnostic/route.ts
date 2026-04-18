@@ -1,8 +1,16 @@
 import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
 
 export async function POST(req: Request) {
   try {
+    // Verificação de autenticação — apenas usuários logados podem enviar dados
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { nomeClinica, faturamento, gargalo, investimento, whatsapp, email } = body;
 
@@ -38,4 +46,4 @@ export async function POST(req: Request) {
     console.error(error);
     return NextResponse.json({ error: 'Erro ao salvar na planilha' }, { status: 500 });
   }
-}
+}

@@ -9,6 +9,12 @@ import {
   deleteBill,
 } from "@/app/(dashboard)/actions";
 import type { Company, Bill } from "@/types/database";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contas a Pagar | Nexus",
+  description: "Gestão financeira e controle de lançamentos.",
+};
 
 export default async function GestaoPage() {
   const supabase = await createClient();
@@ -22,7 +28,7 @@ export default async function GestaoPage() {
     .eq("user_id", user?.id ?? "")
     .order("name", { ascending: true });
 
-  // Busca todos os boletos das empresas do usuário
+  // Busca todas as contas das empresas do usuário
   const { data: bills } = await supabase
     .from("bills")
     .select("*")

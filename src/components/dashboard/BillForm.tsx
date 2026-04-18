@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useRef, useTransition } from "react";
+import React, { useRef, useTransition, useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Tag, CreditCard, BellRing, Save, Hash } from "lucide-react";
+import { Calendar, Tag, CreditCard, BellRing, Save, Hash, FileText, Upload, X, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 interface BillFormProps {
@@ -12,18 +12,40 @@ interface BillFormProps {
 
 export function BillForm({ companyId, createAction }: BillFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== "application/pdf") {
+        toast.error("Formato inválido", { description: "Apenas arquivos PDF são aceitos." });
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Arquivo muito grande", { description: "O limite é de 5MB." });
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
 
   const actionHandler = async (formData: FormData) => {
     formData.append("company_id", companyId);
+    if (selectedFile) {
+      formData.append("pdf_file", selectedFile);
+    }
+
     startTransition(async () => {
       try {
         const result = await createAction(formData);
         if (result.error) {
           toast.error("Erro ao salvar", { description: result.error });
         } else if (result.success) {
-          toast.success("Boleto criado!", { description: "Salvo e sincronizado com sucesso." });
+          toast.success("Conta cadastrada!", { description: "Lançamento realizado com sucesso." });
           formRef.current?.reset();
+          setSelectedFile(null);
         }
       } catch {
         toast.error("Erro inesperado");
@@ -37,19 +59,19 @@ export function BillForm({ companyId, createAction }: BillFormProps) {
   return (
     <div className="bg-[#111111] border border-white/8 rounded-3xl p-6 md:p-7">
       <div className="mb-6">
-        <h3 className="text-lg font-bold text-white">Novo Boleto</h3>
+        <h3 className="text-lg font-bold text-white">Novo Lançamento</h3>
         <p className="text-white/40 text-xs mt-1">
-          Preencha os dados abaixo. Se informar a data de notificação, um evento será criado no Google Calendar.
+          Gerencie suas contas a pagar com precisão. Anexe o boleto original para maior controle.
         </p>
       </div>
 
       <form ref={formRef} action={actionHandler} className="space-y-4">
-        {/* Título */}
+        {/* Descrição */}
         <label className="block space-y-2">
-          <span className={labelClass}>Título</span>
+          <span className={labelClass}>Descrição</span>
           <div className="relative">
-            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-            <input name="title" required className={inputClass} placeholder="Ex: Mensalidade — Acme Corp" />
+            <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+            <input name="description" required className={inputClass} placeholder="Ex: Aluguel Escritório — Abr/2024" />
           </div>
         </label>
 
@@ -63,15 +85,24 @@ export function BillForm({ companyId, createAction }: BillFormProps) {
             </div>
           </label>
 
-          {/* Tag */}
+          {/* Categoria */}
           <label className="block space-y-2">
-            <span className={labelClass}>Tag <span className="text-white/30 normal-case font-normal">(opcional)</span></span>
+            <span className={labelClass}>Categoria</span>
             <div className="relative">
-              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-              <input name="tag" className={inputClass} placeholder="Ex: Marketing" />
+              <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <input name="category" className={inputClass} placeholder="Ex: Infraestrutura" />
             </div>
           </label>
         </div>
+
+        {/* Centro de Custo */}
+        <label className="block space-y-2">
+          <span className={labelClass}>Centro de Custo</span>
+          <div className="relative">
+            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+            <input name="cost_center" className={inputClass} placeholder="Ex: Administrativo / Matriz" />
+          </div>
+        </label>
 
         {/* Status */}
         <label className="block space-y-2">
@@ -82,7 +113,7 @@ export function BillForm({ companyId, createAction }: BillFormProps) {
             className="cursor-pointer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#F22471]/50 transition-all appearance-none [&>option]:bg-[#111111]"
           >
             <option value="Pendente">⏳ Aguardando Pagamento</option>
-            <option value="Paga">✅ Boleto Pago</option>
+            <option value="Paga">✅ Conta Paga</option>
             <option value="Vencido">🔴 Em Atraso (Vencido)</option>
           </select>
         </label>
@@ -107,9 +138,54 @@ export function BillForm({ companyId, createAction }: BillFormProps) {
           </label>
         </div>
 
+        {/* PDF Attachment */}
+        <div className="space-y-2">
+          <span className={labelClass}>Anexo (PDF)</span>
+          <div 
+            onClick={() => fileInputRef.current?.click()}
+            className={`cursor-pointer group flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-4 transition-all ${
+              selectedFile 
+                ? 'bg-emerald-500/5 border-emerald-500/20' 
+                : 'bg-white/2 border-white/10 hover:border-[#F22471]/30 hover:bg-[#F22471]/5'
+            }`}
+          >
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              className="hidden" 
+              accept="application/pdf"
+              onChange={handleFileChange}
+            />
+            {selectedFile ? (
+              <div className="flex items-center gap-3 w-full">
+                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                  <ShieldCheck size={20} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-emerald-400 truncate">{selectedFile.name}</p>
+                  <p className="text-[10px] text-white/30 uppercase">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF</p>
+                </div>
+                <button 
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setSelectedFile(null); }}
+                  className="p-1.5 rounded-md hover:bg-white/10 text-white/30 hover:text-white transition-all"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <>
+                <Upload size={18} className="text-white/20 mb-2 group-hover:text-[#F22471] transition-colors" />
+                <p className="text-xs text-white/40 group-hover:text-white/60 transition-colors">Clique para anexar o boleto</p>
+                <p className="text-[10px] text-white/20 mt-1">PDF até 5MB</p>
+              </>
+            )}
+          </div>
+        </div>
+
         {/* Notificação */}
-        <label className="block space-y-2">
-          <span className={labelClass}>Data de Notificação</span>
+        <label className="block space-y-2 pt-2">
+          <span className={labelClass}>Lembrete no Calendar</span>
           <div className="relative">
             <BellRing className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#F22471]" />
             <input
@@ -118,21 +194,20 @@ export function BillForm({ companyId, createAction }: BillFormProps) {
               className={`cursor-text w-full bg-[#F22471]/5 border border-[#F22471]/20 rounded-xl pl-10 pr-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#F22471]/60 transition-all [color-scheme:dark]`}
             />
           </div>
-          <p className="text-xs text-white/30">Se preenchida, cria um evento no Google Calendar automaticamente.</p>
         </label>
 
         <motion.button
           type="submit"
           disabled={isPending}
           whileTap={{ scale: 0.98 }}
-          className="cursor-pointer mt-2 w-full py-3.5 rounded-xl bg-gradient-to-r from-[#F24639] to-[#F22471] text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_0_30px_-10px_#F22471] hover:shadow-[0_0_40px_-5px_#F22471] transition-all"
+          className="cursor-pointer mt-4 w-full py-4 rounded-xl bg-gradient-to-r from-[#F24639] to-[#F22471] text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_20px_40px_-15px_rgba(242,36,113,0.3)] hover:shadow-[0_20px_50px_-10px_rgba(242,36,113,0.5)] transition-all"
         >
           {isPending ? (
             <span className="animate-pulse">Processando...</span>
           ) : (
             <>
-              <Save size={15} />
-              <span>Salvar e Sincronizar</span>
+              <Save size={16} />
+              <span>Concluir Lançamento</span>
             </>
           )}
         </motion.button>

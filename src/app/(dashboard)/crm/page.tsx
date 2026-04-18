@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import { getPipelines } from "./actions";
+import { getPipelines, getContacts } from "./actions";
 import CRMClient from "./CRMClient";
 import CRMSetup from "./CRMSetup";
 import { redirect } from "next/navigation";
@@ -24,6 +24,7 @@ export default async function CRMPage() {
   }
 
   const pipelines = await getPipelines();
+  const contacts = await getContacts(company.id);
   
   // Buscar todos os deals da empresa para popular o kanban inicial
   const { data: deals, error } = await supabase
@@ -44,6 +45,7 @@ export default async function CRMPage() {
       <CRMClient 
         initialPipelines={pipelines || []} 
         initialDeals={deals || []}
+        initialContacts={contacts || []}
         companyId={company.id} 
       />
     </div>

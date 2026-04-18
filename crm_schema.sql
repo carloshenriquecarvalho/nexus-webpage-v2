@@ -102,3 +102,28 @@ CREATE POLICY "Users can manage deals of their companies" ON crm_deals
             SELECT id FROM companies WHERE user_id = auth.uid()
         )
     );
+
+-- ──────────────────────────────────────────────────────
+-- Deal Notes: Timeline de notas/andamento por deal
+-- ──────────────────────────────────────────────────────
+
+CREATE TABLE crm_deal_notes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    deal_id UUID NOT NULL REFERENCES crm_deals(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_crm_deal_notes_deal_id ON crm_deal_notes(deal_id);
+
+ALTER TABLE crm_deal_notes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can manage notes of their deals" ON crm_deal_notes
+    FOR ALL
+    USING (
+        deal_id IN (
+            SELECT d.id FROM crm_deals d
+            JOIN companies c ON d.company_id = c.id
+            WHERE c.user_id = auth.uid()
+        )
+    );

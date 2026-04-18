@@ -57,7 +57,7 @@ export function GestaoClient({
         <div>
           <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-1">Nexus • Gestão Financeira</p>
           <h1 className="text-3xl font-bold tracking-tight text-white">
-            Gestão de <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F24639] to-[#F22471]">Boletos</span>
+            Contas a <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F24639] to-[#F22471]">Pagar</span>
           </h1>
         </div>
         <motion.button
@@ -102,7 +102,7 @@ export function GestaoClient({
             {companies.length === 0 ? (
               <EmptyState
                 title="Nenhuma empresa cadastrada"
-                description="Crie sua primeira empresa para começar a registrar os boletos."
+                description="Crie sua primeira empresa para começar a registrar os pagamentos."
                 action={
                   <button
                     onClick={() => { setEditingCompany(undefined); setShowCompanyForm(true); }}
@@ -143,7 +143,7 @@ export function GestaoClient({
               >
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">
-                    Boletos — <span className="text-[#F22471]">{selectedCompany.name}</span>
+                    Contas — <span className="text-[#F22471]">{selectedCompany.name}</span>
                   </p>
                   {filteredBills.length > 0 && (
                     <span className="text-xs text-white/30">{filteredBills.length} registro{filteredBills.length > 1 ? "s" : ""}</span>
@@ -151,7 +151,7 @@ export function GestaoClient({
                 </div>
                 {filteredBills.length === 0 ? (
                   <EmptyState
-                    title="Sem boletos para esta empresa"
+                    title="Sem contas para esta empresa"
                     description="Use o formulário ao lado para registrar o primeiro lançamento."
                   />
                 ) : (
@@ -172,12 +172,12 @@ export function GestaoClient({
         </div>
 
         {/* Right: Form */}
-        <div className="lg:col-span-5">
+        <div className="lg:col-span-5 lg:sticky lg:top-10 h-fit">
           {selectedCompany ? (
             <BillForm companyId={selectedCompany.id} createAction={createBillAction} />
           ) : (
             <div className="bg-white/3 border border-dashed border-white/10 rounded-3xl p-8 text-center text-white/30 text-sm">
-              Selecione uma empresa para começar a registrar boletos.
+              Selecione uma empresa para começar a registrar contas.
             </div>
           )}
         </div>

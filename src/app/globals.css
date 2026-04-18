@@ -19,6 +19,15 @@ body {
   color-scheme: dark;
 }
 
+button,
+a,
+select,
+label[for],
+[role="button"],
+[tabindex]:not([tabindex="-1"]) {
+  cursor: pointer;
+}
+
 /* Taste-Skill Premium Utilities */
 @layer utilities {
   .liquid-glass {

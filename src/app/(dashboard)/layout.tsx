@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { GoogleCalendarConnect } from "@/components/dashboard/GoogleCalendarConnect";
 import { FileText, Globe, LogOut } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient();
@@ -13,7 +14,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const isCalendarConnected = user?.user_metadata?.google_calendar_connected === true;
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex">
+    <div className="h-screen bg-[var(--background)] text-[var(--foreground)] flex overflow-hidden">
       <aside className="w-64 border-r border-white/10 hidden md:flex flex-col p-6 gap-6 bg-[#0d0d0d]">
 
         {/* Brand */}
@@ -27,34 +28,34 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
         {/* Navigation */}
         <nav className="flex flex-col gap-1 flex-1">
-          <a
+          <Link
             href="/gestao"
             className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm"
           >
             <FileText size={16} className="text-[var(--accent)]" />
-            <span>Boletos</span>
-          </a>
-          <a
+            <span>Contas a Pagar</span>
+          </Link>
+          <Link
             href="/crm"
             className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/50 hover:text-[var(--accent)]"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M8 7v6"/><path d="M16 7v10"/></svg>
             <span>CRM</span>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/martech-lab"
             className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm"
           >
             <Globe size={16} className="text-white/50" />
             <span>Martech Lab</span>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/"
             className="flex items-center space-x-3 px-3 py-2.5 rounded-xl mt-auto text-white/50 hover:text-white hover:bg-white/5 transition-all text-sm"
           >
             <Globe size={16} />
             <span>Voltar ao site</span>
-          </a>
+          </Link>
         </nav>
 
         {/* Bottom section */}
