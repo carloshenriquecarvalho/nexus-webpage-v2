@@ -10,6 +10,7 @@ interface BillCardProps {
   bill: Bill;
   deleteAction: (formData: FormData) => Promise<{ error?: string; success?: boolean }>;
   onEdit: (bill: Bill) => void;
+  onView: (bill: Bill) => void;
 }
 
 const statusConfig: Record<BillStatus, { label: string; dot: string; text: string; bg: string; border: string; icon: React.ReactNode }> = {
@@ -48,7 +49,7 @@ function formatCurrency(v: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
 }
 
-export function BillCard({ bill, deleteAction, onEdit }: BillCardProps) {
+export function BillCard({ bill, deleteAction, onEdit, onView }: BillCardProps) {
   const [isPending, startTransition] = useTransition();
   const s = statusConfig[bill.status];
 
@@ -66,7 +67,8 @@ export function BillCard({ bill, deleteAction, onEdit }: BillCardProps) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -10 }}
-      className="group flex flex-col md:flex-row items-start md:items-center justify-between gap-3 p-4 bg-white/3 hover:bg-white/6 border border-white/8 hover:border-white/12 rounded-xl transition-all duration-200"
+      onClick={() => onView(bill)}
+      className="cursor-pointer group flex flex-col md:flex-row items-start md:items-center justify-between gap-3 p-4 bg-white/3 hover:bg-white/6 border border-white/8 hover:border-white/12 rounded-xl transition-all duration-200"
     >
       <div className="flex items-start md:items-center gap-3 min-w-0 flex-1 w-full">
         {/* Status badge */}
@@ -80,16 +82,12 @@ export function BillCard({ bill, deleteAction, onEdit }: BillCardProps) {
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold text-white/90 truncate leading-tight">{bill.description}</p>
             {bill.pdf_url && (
-              <a 
-                href={bill.pdf_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
+              <div 
                 className="p-1 rounded bg-white/5 text-white/40 hover:text-[#F22471] hover:bg-[#F22471]/10 transition-all"
-                title="Ver anexo"
-                onClick={(e) => e.stopPropagation()}
+                title="Possui anexo"
               >
                 <FileText size={12} />
-              </a>
+              </div>
             )}
           </div>
           
@@ -129,13 +127,13 @@ export function BillCard({ bill, deleteAction, onEdit }: BillCardProps) {
         {/* Actions */}
         <div className="flex gap-1.5 opacity-60 md:opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            onClick={() => onEdit(bill)}
+            onClick={(e) => { e.stopPropagation(); onEdit(bill); }}
             className="cursor-pointer w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all"
             title="Editar"
           >
             <Pencil size={13} />
           </button>
-          <form action={handleDelete}>
+          <form action={handleDelete} onClick={(e) => e.stopPropagation()}>
             <input type="hidden" name="id" value={bill.id} />
             <button
               type="submit"
