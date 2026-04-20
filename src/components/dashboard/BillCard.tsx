@@ -3,8 +3,9 @@
 import React, { useTransition } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Trash2, Calendar, Tag, Pencil, CalendarCheck2, CheckCircle2, Clock, AlertCircle, FileText, Hash } from "lucide-react";
+import { Trash2, Calendar, Tag, Pencil, CalendarCheck2, CheckCircle2, Clock, AlertCircle, FileText, Hash, AlertTriangle } from "lucide-react";
 import type { Bill, BillStatus } from "@/types/database";
+import { getImminentWarning } from "@/utils/billUtils";
 
 interface BillCardProps {
   bill: Bill;
@@ -52,6 +53,7 @@ function formatCurrency(v: number) {
 export function BillCard({ bill, deleteAction, onEdit, onView }: BillCardProps) {
   const [isPending, startTransition] = useTransition();
   const s = statusConfig[bill.status];
+  const warning = getImminentWarning(bill);
 
   const handleDelete = (formData: FormData) => {
     startTransition(async () => {
@@ -87,6 +89,12 @@ export function BillCard({ bill, deleteAction, onEdit, onView }: BillCardProps) 
                 title="Possui anexo"
               >
                 <FileText size={12} />
+              </div>
+            )}
+            {warning && (
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold text-amber-500 uppercase tracking-wider animate-pulse">
+                <AlertTriangle size={10} />
+                <span>{warning}</span>
               </div>
             )}
           </div>

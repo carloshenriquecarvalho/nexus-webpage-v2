@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, TrendingUp, Receipt, AlertCircle, Calendar as CalendarIcon, Filter, X } from "lucide-react";
+import { Plus, TrendingUp, Receipt, AlertCircle, Calendar as CalendarIcon, Filter, X, ChevronDown } from "lucide-react";
 import { CompanyCard } from "@/components/dashboard/CompanyCard";
 import { CompanyForm } from "@/components/dashboard/CompanyForm";
 import { BillCard } from "@/components/dashboard/BillCard";
@@ -11,7 +11,7 @@ import { BillDetailModal } from "@/components/dashboard/BillDetailModal";
 import { BillForm } from "@/components/dashboard/BillForm";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import type { Company, Bill } from "@/types/database";
-import { getEffectiveStatus, filterBillsByDate } from "@/utils/billUtils";
+import { getEffectiveStatus, filterBillsByDate, getDaysUntilDue } from "@/utils/billUtils";
 
 interface GestaoClientProps {
   companies: Company[];
@@ -39,20 +39,37 @@ export function GestaoClient({
   const [editingBill, setEditingBill] = useState<Bill | undefined>();
   const [viewingBill, setViewingBill] = useState<Bill | undefined>();
 
-  // Filtros de data
+  // Filtros
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const selectedCompany = companies.find(c => c.id === selectedCompanyId);
 
   // Aplicar lógica de status dinâmico e filtros
   const processedBills = useMemo(() => {
-    const withDynamicStatus = bills.map(b => ({
+    // Primeiro, aplica o status dinâmico
+    let list = bills.map(b => ({
       ...b,
       status: getEffectiveStatus(b)
     }));
-    return filterBillsByDate(withDynamicStatus, startDate, endDate);
-  }, [bills, startDate, endDate]);
+
+    // Filtro por período
+    list = filterBillsByDate(list, startDate, endDate);
+
+    // Filtro por status/proximidade
+    if (statusFilter === "near") {
+      list = list.filter(b => b.status === "Pendente" && b.overdue_date && getDaysUntilDue(b.overdue_date) <= 3);
+    } else if (statusFilter === "overdue") {
+      list = list.filter(b => b.status === "Vencido");
+    } else if (statusFilter === "pending") {
+      list = list.filter(b => b.status === "Pendente");
+    } else if (statusFilter === "paid") {
+      list = list.filter(b => b.status === "Paga");
+    }
+
+    return list;
+  }, [bills, startDate, endDate, statusFilter]);
 
   const filteredBills = processedBills.filter(b => b.company_id === selectedCompanyId);
 
@@ -66,62 +83,85 @@ export function GestaoClient({
   const pendingCountFor = (id: string) => processedBills.filter(b => b.company_id === id && b.status === "Pendente").length;
   const totalAmountFor = (id: string) => processedBills.filter(b => b.company_id === id).reduce((s, b) => s + Number(b.amount), 0);
 
-  const hasActiveFilters = startDate !== "" || endDate !== "";
-  const clearFilters = () => { setStartDate(""); setEndDate(""); };
+  const hasActiveFilters = startDate !== "" || endDate !== "" || statusFilter !== "all";
+  const clearFilters = () => { setStartDate(""); setEndDate(""); setStatusFilter("all"); };
 
   return (
     <div className="w-full max-w-5xl mx-auto p-6 md:p-10 space-y-8">
 
       {/* ─── Header ─────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-1">Nexus • Gestão Financeira</p>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
-            Contas a <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F24639] to-[#F22471]">Pagar</span>
-          </h1>
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-1">Nexus • Gestão Financeira</p>
+            <h1 className="text-3xl font-bold tracking-tight text-white">
+              Contas a <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F24639] to-[#F22471]">Pagar</span>
+            </h1>
+          </div>
+
+          <motion.button
+            onClick={() => { setEditingCompany(undefined); setShowCompanyForm(true); }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="cursor-pointer flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#F24639] to-[#F22471] text-white font-bold text-sm shadow-[0_15px_30px_-10px_rgba(242,36,113,0.3)] hover:shadow-[0_15px_40px_-5px_rgba(242,36,113,0.5)] transition-all flex-shrink-0"
+          >
+            <Plus size={16} />
+            <span>Nova Empresa</span>
+          </motion.button>
         </div>
 
-        {/* Date Filter Bar */}
-        <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-1.5 rounded-2xl">
-          <div className="flex items-center gap-2 px-3 text-white/40">
-            <Filter size={14} />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Período</span>
+        {/* Unified Filter Toolbar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-1 bg-white/3 border border-white/8 rounded-2xl">
+          {/* Status Select Container */}
+          <div className="flex items-center gap-2 flex-1 min-w-[140px] px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl group hover:border-white/20 transition-all relative">
+            <Filter size={14} className="text-white/40 group-hover:text-white/60 transition-colors" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full bg-transparent text-sm text-white/90 focus:outline-none cursor-pointer appearance-none pr-6 z-10"
+            >
+              <option value="all" className="bg-[#111111]">Todos os Lançamentos</option>
+              <option value="near" className="bg-[#111111]">Perto de Vencer</option>
+              <option value="overdue" className="bg-[#111111]">Boletos Vencidos</option>
+              <option value="pending" className="bg-[#111111]">Boletos Pendentes</option>
+              <option value="paid" className="bg-[#111111]">Boletos Pagos</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-3 text-white/20 pointer-events-none" />
           </div>
-          <div className="flex items-center gap-1">
-            <input 
-              type="date" 
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="bg-transparent text-xs text-white p-1.5 focus:outline-none [color-scheme:dark]"
-            />
-            <span className="text-white/20">/</span>
-            <input 
-              type="date" 
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="bg-transparent text-xs text-white p-1.5 focus:outline-none [color-scheme:dark]"
-            />
+
+          {/* Date Pickers Container */}
+          <div className="flex-2 flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl group hover:border-white/20 transition-all">
+            <CalendarIcon size={14} className="text-white/40 group-hover:text-white/60 transition-colors" />
+            <div className="flex items-center gap-1 flex-1">
+              <input 
+                type="date" 
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="bg-transparent text-sm text-white/90 focus:outline-none [color-scheme:dark] w-full"
+              />
+              <span className="text-white/10 px-1">/</span>
+              <input 
+                type="date" 
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="bg-transparent text-sm text-white/90 focus:outline-none [color-scheme:dark] w-full"
+              />
+            </div>
           </div>
+
+          {/* Clear Actions */}
           {hasActiveFilters && (
-            <button 
+            <motion.button 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
               onClick={clearFilters}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-all"
-              title="Limpar filtros"
+              className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2"
             >
               <X size={14} />
-            </button>
+              <span>Limpar Filtros</span>
+            </motion.button>
           )}
         </div>
-
-        <motion.button
-          onClick={() => { setEditingCompany(undefined); setShowCompanyForm(true); }}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          className="cursor-pointer flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#F24639] to-[#F22471] text-white font-bold text-sm shadow-[0_15px_30px_-10px_rgba(242,36,113,0.3)] hover:shadow-[0_15px_40px_-5px_rgba(242,36,113,0.5)] transition-all flex-shrink-0"
-        >
-          <Plus size={16} />
-          <span>Nova Empresa</span>
-        </motion.button>
       </div>
 
       {/* ─── Stats ──────────────────────────────────── */}

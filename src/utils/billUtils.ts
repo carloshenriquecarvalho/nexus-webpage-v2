@@ -35,3 +35,34 @@ export function filterBillsByDate(bills: Bill[], startDate?: string, endDate?: s
     return true;
   });
 }
+
+/**
+ * Retorna a diferença em dias entre a data atual e a data de vencimento.
+ */
+export function getDaysUntilDue(dueDateStr: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const dueDate = new Date(dueDateStr + "T00:00:00");
+  
+  const diffTime = dueDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  return diffDays;
+}
+
+/**
+ * Retorna uma mensagem de aviso para boletos que estão perto de vencer.
+ */
+export function getImminentWarning(bill: Bill): string | null {
+  if (bill.status === "Paga" || !bill.overdue_date) return null;
+  
+  const days = getDaysUntilDue(bill.overdue_date);
+  
+  if (days < 0) return null; // Já vencido (já tem status Vencido)
+  if (days === 0) return "Vence hoje";
+  if (days === 1) return "Vence amanhã";
+  if (days <= 3) return `A vencer em ${days} dias`;
+  
+  return null;
+}
