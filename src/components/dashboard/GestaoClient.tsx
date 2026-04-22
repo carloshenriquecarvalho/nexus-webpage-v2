@@ -42,7 +42,14 @@ export function GestaoClient({
 
   // Filtros
   const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
+  const defaultEndDate = useMemo(() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(new Date(y, now.getMonth() + 1, 0).getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }, []);
+  const [endDate, setEndDate] = useState<string>(defaultEndDate);
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const selectedCompany = companies.find(c => c.id === selectedCompanyId);
@@ -55,24 +62,7 @@ export function GestaoClient({
       status: getEffectiveStatus(b)
     }));
 
-    // Filtro de Visibilidade Mensal: Só mostrar boletos do mês atual ou meses passados
-    list = list.filter(b => {
-      if (b.status === "Paga") return true;
-      if (!b.overdue_date) return true;
-      
-      const today = new Date();
-      const currentYear = today.getFullYear();
-      const currentMonth = today.getMonth(); // 0-11
-      const [bYear, bMonth] = b.overdue_date.split("-").map(Number);
-      
-      if (bYear < currentYear) return true;
-      if (bYear === currentYear && (bMonth - 1) <= currentMonth) return true;
-      
-      return false; 
-    });
-
-
-    // Filtro por período
+    // Filtro por período (agora atua como o filtro de visibilidade principal)
     list = filterBillsByDate(list, startDate, endDate);
 
     // Filtro por status/proximidade
@@ -101,8 +91,8 @@ export function GestaoClient({
   const pendingCountFor = (id: string) => processedBills.filter(b => b.company_id === id && b.status === "Pendente").length;
   const totalAmountFor = (id: string) => processedBills.filter(b => b.company_id === id).reduce((s, b) => s + Number(b.amount), 0);
 
-  const hasActiveFilters = startDate !== "" || endDate !== "" || statusFilter !== "all";
-  const clearFilters = () => { setStartDate(""); setEndDate(""); setStatusFilter("all"); };
+  const hasActiveFilters = startDate !== "" || endDate !== defaultEndDate || statusFilter !== "all";
+  const clearFilters = () => { setStartDate(""); setEndDate(defaultEndDate); setStatusFilter("all"); };
 
   return (
     <div className="w-full max-w-5xl mx-auto p-6 md:p-10 space-y-8">
