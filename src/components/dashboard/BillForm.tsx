@@ -222,7 +222,7 @@ export function BillForm({ companyId, categories, costCenters, suppliers, create
             <span className={labelClass}>Dt. Pagamento</span>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-              <input name="payment_date" type="date" className={`${inputClass} [color-scheme:dark]`} />
+              <input name="payment_date" type="date" defaultValue={initialData?.payment_date ?? ""} className={`${inputClass} [color-scheme:dark]`} />
             </div>
           </label>
         </div>
@@ -356,7 +356,6 @@ export function BillForm({ companyId, categories, costCenters, suppliers, create
               <input 
                 type="checkbox" 
                 name="is_recurring" 
-                disabled={!!initialData}
                 className="sr-only peer" 
                 onChange={(e) => setIsRecurring(e.target.checked)}
               />

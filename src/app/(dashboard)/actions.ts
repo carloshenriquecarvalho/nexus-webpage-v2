@@ -35,6 +35,7 @@ export async function createBill(formData: FormData) {
     }
 
     const overdue_date = formData.get("overdue_date") as string;
+    const payment_date = formData.get("payment_date") as string;
     const notification_date = formData.get("notification_date") as string;
     const company_id = formData.get("company_id") as string;
 
@@ -154,6 +155,7 @@ export async function createBill(formData: FormData) {
         receipt_url,
         overdue_date: current_overdue,
         notification_date: current_notification,
+        payment_date: payment_date || null,
         google_event_id,
         recurrent_group_id,
         notes,
@@ -484,11 +486,18 @@ export async function createSupplier(formData: FormData) {
     if (authError || !user) return { error: "Usuário não autenticado." };
 
     const name = (formData.get("name") as string)?.trim();
+    const cnpj_cpf = (formData.get("cnpj_cpf") as string)?.trim() || null;
+    const address = (formData.get("address") as string)?.trim() || null;
+    const phone = (formData.get("phone") as string)?.trim() || null;
+
     if (!name) return { error: "Nome é obrigatório." };
 
     const { error: dbError } = await supabase.from("suppliers").insert({
       user_id: user.id,
       name,
+      cnpj_cpf,
+      address,
+      phone,
     });
 
     if (dbError) return { error: dbError.message };

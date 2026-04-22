@@ -141,26 +141,54 @@ export function SettingsModal({
         </div>
 
         {/* Form Add */}
-        <form onSubmit={handleCreate} className="flex gap-3 mb-6">
-          <div className="relative flex-1">
-            {activeTab === "categories" && <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />}
-            {activeTab === "costCenters" && <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />}
-            {activeTab === "suppliers" && <Truck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />}
-            <input
-              name="name"
-              required
+        <form onSubmit={handleCreate} className="flex flex-col gap-3 mb-6">
+          <div className="flex gap-3">
+            <div className="relative flex-1">
+              {activeTab === "categories" && <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />}
+              {activeTab === "costCenters" && <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />}
+              {activeTab === "suppliers" && <Truck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />}
+              <input
+                name="name"
+                required
+                disabled={isPending}
+                placeholder={`Novo(a) ${activeTab === "categories" ? "Categoria" : activeTab === "costCenters" ? "Centro de Custo" : "Fornecedor"}...`}
+                className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#F22471]/50 focus:bg-white/8 transition-all"
+              />
+            </div>
+            <button
+              type="submit"
               disabled={isPending}
-              placeholder={`Novo(a) ${activeTab === "categories" ? "Categoria" : activeTab === "costCenters" ? "Centro de Custo" : "Fornecedor"}...`}
-              className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#F22471]/50 focus:bg-white/8 transition-all"
-            />
+              className="px-5 rounded-xl bg-gradient-to-r from-[#F24639] to-[#F22471] text-white font-bold text-sm shadow-[0_15px_30px_-10px_rgba(242,36,113,0.3)] hover:shadow-[0_15px_40px_-5px_rgba(242,36,113,0.5)] transition-all disabled:opacity-50 flex items-center justify-center"
+            >
+              <Plus size={18} />
+            </button>
           </div>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="px-5 rounded-xl bg-gradient-to-r from-[#F24639] to-[#F22471] text-white font-bold text-sm shadow-[0_15px_30px_-10px_rgba(242,36,113,0.3)] hover:shadow-[0_15px_40px_-5px_rgba(242,36,113,0.5)] transition-all disabled:opacity-50 flex items-center justify-center"
-          >
-            <Plus size={18} />
-          </button>
+          {activeTab === "suppliers" && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-3"
+            >
+              <input
+                name="cnpj_cpf"
+                disabled={isPending}
+                placeholder="CNPJ ou CPF (Opcional)"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#F22471]/50 focus:bg-white/8 transition-all"
+              />
+              <input
+                name="phone"
+                disabled={isPending}
+                placeholder="Telefone (Opcional)"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#F22471]/50 focus:bg-white/8 transition-all"
+              />
+              <input
+                name="address"
+                disabled={isPending}
+                placeholder="Endereço (Opcional)"
+                className="w-full md:col-span-2 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#F22471]/50 focus:bg-white/8 transition-all"
+              />
+            </motion.div>
+          )}
         </form>
 
         {/* List */}
@@ -185,11 +213,18 @@ export function SettingsModal({
                   exit={{ opacity: 0, scale: 0.95 }}
                   className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 group hover:border-white/20 transition-all"
                 >
-                  <span className="text-sm font-medium text-white/90">{item.name}</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-white/90">{item.name}</span>
+                    {activeTab === "suppliers" && ("cnpj_cpf" in item || "phone" in item) && ((item as Supplier).cnpj_cpf || (item as Supplier).phone) && (
+                      <span className="text-[10px] text-white/40 mt-0.5">
+                        {[(item as Supplier).cnpj_cpf, (item as Supplier).phone].filter(Boolean).join(" • ")}
+                      </span>
+                    )}
+                  </div>
                   <button
                     onClick={() => handleDelete(item.id)}
                     disabled={isPending}
-                    className="p-1.5 rounded-md text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all disabled:opacity-50"
+                    className="p-1.5 rounded-md text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all disabled:opacity-50 flex-shrink-0"
                   >
                     <Trash2 size={16} />
                   </button>

@@ -23,6 +23,9 @@ export interface Supplier {
   id: string; // uuid
   user_id: string; // uuid
   name: string;
+  cnpj_cpf?: string | null;
+  address?: string | null;
+  phone?: string | null;
 }
 
 export interface Bill {
