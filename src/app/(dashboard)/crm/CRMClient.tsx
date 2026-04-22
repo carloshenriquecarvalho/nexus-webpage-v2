@@ -11,9 +11,12 @@ import {
   Plus, MoreVertical, DollarSign, Calendar, User,
   Search, X, Layout, Briefcase, Mail, Phone,
   CheckCircle2, XCircle, Circle, Pencil, Trash2,
-  Kanban, Users, AlertTriangle
+  Kanban, Users, AlertTriangle, Edit3, Settings
 } from "lucide-react";
-import { updateDealStage, createPipeline, createDeal, updateDeal, deleteDeal } from "./actions";
+import { 
+  updateDealStage, createPipeline, createDeal, updateDeal, deleteDeal,
+  updatePipeline, deletePipeline, createStage, updateStage, deleteStage
+} from "./actions";
 import ContactsPanel, { type Contact } from "./ContactsPanel";
 import DealDrawer, { type DrawerDeal } from "./DealDrawer";
 import { toast } from "sonner";
@@ -270,6 +273,12 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
 
   // Modais
   const [showPipelineModal, setShowPipelineModal] = useState(false);
+  const [editPipelineModal, setEditPipelineModal] = useState<{ show: boolean; pipeline: any | null }>({ show: false, pipeline: null });
+  const [deletePipelineModal, setDeletePipelineModal] = useState<{ show: boolean; pipeline: any | null }>({ show: false, pipeline: null });
+  const [stageModal, setStageModal] = useState<{ show: boolean; mode: "create" | "edit"; pipelineId?: string; stage?: any | null }>({ show: false, mode: "create" });
+  const [deleteStageModal, setDeleteStageModal] = useState<{ show: boolean; stage: any | null }>({ show: false, stage: null });
+  const [openStageMenuId, setOpenStageMenuId] = useState<string | null>(null);
+
   const [createModal, setCreateModal] = useState<{ show: boolean; stageId: string | null }>({ show: false, stageId: null });
   const [editModal, setEditModal] = useState<{ show: boolean; deal: Deal | null }>({ show: false, deal: null });
   const [deleteModal, setDeleteModal] = useState<{ show: boolean; deal: Deal | null }>({ show: false, deal: null });
@@ -328,6 +337,99 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
       }
     });
 
+  };
+
+  // ── Atualizar/Deletar Funil ──
+  const handleUpdatePipeline = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editPipelineModal.pipeline) return;
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    if (!name) return;
+    startTransition(async () => {
+      const result = await updatePipeline(editPipelineModal.pipeline.id, name);
+      if (result.success) {
+        setPipelines(prev => prev.map(p => p.id === result.data.id ? { ...p, name: result.data.name } : p));
+        setEditPipelineModal({ show: false, pipeline: null });
+        toast.success("Funil atualizado!");
+      } else {
+        toast.error("Erro ao atualizar funil.");
+      }
+    });
+  };
+
+  const handleDeletePipeline = async () => {
+    if (!deletePipelineModal.pipeline) return;
+    startTransition(async () => {
+      const result = await deletePipeline(deletePipelineModal.pipeline.id);
+      if (result.success) {
+        const remaining = pipelines.filter(p => p.id !== deletePipelineModal.pipeline.id);
+        setPipelines(remaining);
+        setActivePipelineId(remaining.length > 0 ? remaining[0].id : null);
+        setDeletePipelineModal({ show: false, pipeline: null });
+        toast.success("Funil excluído!");
+      } else {
+        toast.error(result.error?.message || "Erro ao excluir funil.");
+      }
+    });
+  };
+
+  // ── Etapas (Stages) ──
+  const handleStageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    if (!name) return;
+
+    startTransition(async () => {
+      if (stageModal.mode === "create" && stageModal.pipelineId) {
+        const position = activePipeline?.crm_stages?.length || 0;
+        const res = await createStage(stageModal.pipelineId, name, position);
+        if (res.success) {
+          setPipelines(prev => prev.map(p => {
+            if (p.id === stageModal.pipelineId) {
+              return { ...p, crm_stages: [...(p.crm_stages || []), res.data] };
+            }
+            return p;
+          }));
+          toast.success("Etapa criada!");
+        } else toast.error("Erro ao criar etapa.");
+      } else if (stageModal.mode === "edit" && stageModal.stage) {
+        const res = await updateStage(stageModal.stage.id, name);
+        if (res.success) {
+          setPipelines(prev => prev.map(p => {
+            if (p.id === stageModal.stage.pipeline_id) {
+              return {
+                ...p,
+                crm_stages: p.crm_stages?.map((s: any) => s.id === stageModal.stage.id ? { ...s, name: res.data.name } : s)
+              };
+            }
+            return p;
+          }));
+          toast.success("Etapa atualizada!");
+        } else toast.error("Erro ao atualizar etapa.");
+      }
+      setStageModal({ show: false, mode: "create" });
+    });
+  };
+
+  const handleDeleteStage = async () => {
+    if (!deleteStageModal.stage) return;
+    startTransition(async () => {
+      const res = await deleteStage(deleteStageModal.stage.id);
+      if (res.success) {
+        setPipelines(prev => prev.map(p => {
+          if (p.id === deleteStageModal.stage.pipeline_id) {
+            return { ...p, crm_stages: p.crm_stages?.filter((s: any) => s.id !== deleteStageModal.stage.id) };
+          }
+          return p;
+        }));
+        toast.success("Etapa excluída!");
+      } else {
+        toast.error(res.error?.message || "Erro ao excluir etapa.");
+      }
+      setDeleteStageModal({ show: false, stage: null });
+    });
   };
 
   // ── Criar Deal ──
@@ -424,18 +526,38 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
           {/* Pipeline selector (only on kanban tab) */}
           {activeTab === "kanban" && (
             <div className="flex items-center space-x-3">
-              <select
-                value={activePipelineId}
-                onChange={e => setActivePipelineId(e.target.value)}
-                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-[var(--accent)] outline-none appearance-none cursor-pointer pr-10 min-w-[200px]"
-              >
-                {pipelines.map(p => (
-                  <option key={p.id} value={p.id} className="bg-[#1a1a1a]">{p.name}</option>
-                ))}
-              </select>
+              <div className="flex items-center space-x-2 bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                <select
+                  value={activePipelineId || ""}
+                  onChange={e => setActivePipelineId(e.target.value)}
+                  className="bg-transparent pl-4 py-2 text-sm font-medium focus:ring-0 outline-none appearance-none cursor-pointer pr-10 min-w-[200px]"
+                >
+                  {pipelines.map(p => (
+                    <option key={p.id} value={p.id} className="bg-[#1a1a1a]">{p.name}</option>
+                  ))}
+                </select>
+                {activePipeline && (
+                  <div className="flex items-center border-l border-white/10 pl-1 pr-1">
+                    <button
+                      onClick={() => setEditPipelineModal({ show: true, pipeline: activePipeline })}
+                      className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                      title="Editar Funil"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      onClick={() => setDeletePipelineModal({ show: true, pipeline: activePipeline })}
+                      className="p-1.5 rounded-lg text-white/40 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                      title="Excluir Funil"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
               <button
                 onClick={() => setShowPipelineModal(true)}
-                className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-white/60 hover:text-white"
+                className="p-2.5 rounded-xl bg-white/5 hover:bg-[var(--accent)] hover:text-black border border-white/10 hover:border-[var(--accent)] transition-all text-white/60"
                 title="Novo Funil"
               >
                 <Plus size={18} />
@@ -546,8 +668,8 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
             className="flex-1 overflow-x-auto p-6 bg-[#0a0a0a]"
           >
             <DragDropContext onDragEnd={onDragEnd}>
-              <div className="flex gap-6 h-full min-h-[calc(100vh-200px)]">
-                {activePipeline?.crm_stages?.map((stage: any) => {
+              <div className="flex gap-4 md:gap-6 h-full min-h-[calc(100vh-200px)] snap-x snap-mandatory pb-8">
+                {activePipeline?.crm_stages?.sort((a: any, b: any) => a.position - b.position).map((stage: any) => {
                   const stageDeals = activePipelineDeals
                     .filter(deal => deal.stage_id === stage.id)
                     .filter(deal => {
@@ -566,18 +688,48 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
                     .sort((a, b) => a.position - b.position);
 
                   return (
-                    <div key={stage.id} className="flex flex-col w-80 shrink-0 bg-white/[0.02] rounded-2xl border border-white/5 p-4 group/stage">
+                    <div key={stage.id} className="flex flex-col w-[85vw] max-w-[320px] shrink-0 snap-center md:snap-align-none bg-white/[0.02] rounded-2xl border border-white/5 p-4 group/stage">
                       {/* Stage Header */}
-                      <div className="flex items-center justify-between mb-4 px-1">
+                      <div className="flex items-center justify-between mb-4 px-1 relative">
                         <div className="flex items-center space-x-2">
                           <h3 className="font-semibold text-sm text-white/80">{stage.name}</h3>
                           <span className="bg-white/5 text-white/30 text-[10px] px-1.5 py-0.5 rounded-full border border-white/5">
                             {stageDeals.length}
                           </span>
                         </div>
-                        <button className="text-white/20 hover:text-white transition-colors opacity-0 group-hover/stage:opacity-100">
-                          <MoreVertical size={14} />
-                        </button>
+                        <div className="relative">
+                          <button 
+                            onClick={() => setOpenStageMenuId(openStageMenuId === stage.id ? null : stage.id)}
+                            className="text-white/20 hover:text-white transition-colors p-1 rounded hover:bg-white/10 opacity-100 md:opacity-0 md:group-hover/stage:opacity-100"
+                          >
+                            <MoreVertical size={16} />
+                          </button>
+                          
+                          {/* Stage Options Dropdown */}
+                          <AnimatePresence>
+                            {openStageMenuId === stage.id && (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 5 }}
+                                className="absolute right-0 top-full mt-1 w-40 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-xl overflow-hidden z-50"
+                              >
+                                <button 
+                                  onClick={() => { setStageModal({ show: true, mode: 'edit', stage }); setOpenStageMenuId(null); }}
+                                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-white/70 hover:text-white hover:bg-white/5 transition-colors text-left"
+                                >
+                                  <Pencil size={12} /> Renomear
+                                </button>
+                                <button 
+                                  onClick={() => { setDeleteStageModal({ show: true, stage }); setOpenStageMenuId(null); }}
+                                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-rose-400/70 hover:text-rose-400 hover:bg-rose-400/10 transition-colors text-left border-t border-white/5"
+                                >
+                                  <Trash2 size={12} /> Excluir
+                                </button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
                       </div>
 
                       {/* Cards Container */}
@@ -681,6 +833,19 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
                     </div>
                   );
                 })}
+
+                {/* Add Stage Column Placeholder */}
+                {activePipeline && (
+                  <div className="flex flex-col w-[85vw] max-w-[320px] shrink-0 snap-center md:snap-align-none justify-center opacity-50 hover:opacity-100 transition-opacity p-2">
+                    <button
+                      onClick={() => setStageModal({ show: true, mode: 'create', pipelineId: activePipeline.id })}
+                      className="w-full h-full min-h-[200px] rounded-2xl border-2 border-dashed border-white/10 hover:border-[var(--accent)]/50 hover:bg-[var(--accent)]/5 flex flex-col items-center justify-center gap-3 text-white/30 hover:text-[var(--accent)] transition-all"
+                    >
+                      <Plus size={24} />
+                      <span className="font-medium text-sm">Nova Etapa</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </DragDropContext>
           </motion.div>
@@ -792,6 +957,79 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
                 >
                   {isPending ? "Excluindo..." : "Sim, excluir"}
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── MODALS COMPLEMENTARES: FUNIL E ETAPA ── */}
+      {/* Editar Funil */}
+      <AnimatePresence>
+        {editPipelineModal.show && editPipelineModal.pipeline && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditPipelineModal({ show: false, pipeline: null })} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-sm bg-[#111111] border border-white/10 rounded-3xl p-6 shadow-2xl">
+              <h2 className="font-bold text-white text-lg mb-4">Renomear Funil</h2>
+              <form onSubmit={handleUpdatePipeline} className="space-y-4">
+                <input name="name" defaultValue={editPipelineModal.pipeline.name} required autoFocus className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 transition-all font-medium text-sm" />
+                <button type="submit" disabled={isPending} className="w-full py-3 rounded-xl bg-[var(--accent)] text-black font-bold hover:brightness-110 transition-all disabled:opacity-50 text-sm">
+                  {isPending ? "Salvando..." : "Salvar"}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Excluir Funil */}
+      <AnimatePresence>
+        {deletePipelineModal.show && deletePipelineModal.pipeline && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDeletePipelineModal({ show: false, pipeline: null })} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-sm bg-[#111111] border border-rose-500/20 rounded-3xl p-6 text-center">
+              <div className="w-12 h-12 rounded-xl bg-rose-500/10 flex items-center justify-center mx-auto mb-4"><AlertTriangle className="text-rose-400" /></div>
+              <h3 className="font-bold text-white mb-2">Excluir Funil?</h3>
+              <p className="text-white/40 text-xs mb-6">Esta ação removerá o funil <strong>{deletePipelineModal.pipeline.name}</strong> e só pode ser feita se ele não tiver deals ativos.</p>
+              <div className="flex gap-2">
+                <button onClick={() => setDeletePipelineModal({ show: false, pipeline: null })} className="flex-1 py-2 rounded-xl border border-white/10 text-white/60 text-sm hover:bg-white/5">Cancelar</button>
+                <button onClick={handleDeletePipeline} disabled={isPending} className="flex-1 py-2 rounded-xl bg-rose-500 text-white font-bold text-sm hover:bg-rose-600 disabled:opacity-50">Excluir</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal de Etapa (Criar/Editar) */}
+      <AnimatePresence>
+        {stageModal.show && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setStageModal({ show: false, mode: 'create' })} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-sm bg-[#111111] border border-white/10 rounded-3xl p-6 shadow-2xl">
+              <h2 className="font-bold text-white text-lg mb-4">{stageModal.mode === "create" ? "Nova Etapa" : "Renomear Etapa"}</h2>
+              <form onSubmit={handleStageSubmit} className="space-y-4">
+                <input name="name" defaultValue={stageModal.stage?.name || ""} placeholder="Ex: Contato Realizado" required autoFocus className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 transition-all font-medium text-sm" />
+                <button type="submit" disabled={isPending} className="w-full py-3 rounded-xl bg-[var(--accent)] text-black font-bold hover:brightness-110 transition-all disabled:opacity-50 text-sm">
+                  {isPending ? "Salvando..." : "Salvar Etapa"}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Excluir Etapa */}
+      <AnimatePresence>
+        {deleteStageModal.show && deleteStageModal.stage && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDeleteStageModal({ show: false, stage: null })} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-sm bg-[#111111] border border-rose-500/20 rounded-3xl p-6 text-center">
+              <div className="w-12 h-12 rounded-xl bg-rose-500/10 flex items-center justify-center mx-auto mb-4"><Trash2 className="text-rose-400" /></div>
+              <h3 className="font-bold text-white mb-2">Excluir Etapa?</h3>
+              <p className="text-white/40 text-xs mb-6">Tem certeza que deseja remover <strong>{deleteStageModal.stage.name}</strong>? Não pode ter deals ativos.</p>
+              <div className="flex gap-2">
+                <button onClick={() => setDeleteStageModal({ show: false, stage: null })} className="flex-1 py-2 rounded-xl border border-white/10 text-white/60 text-sm hover:bg-white/5">Cancelar</button>
+                <button onClick={handleDeleteStage} disabled={isPending} className="flex-1 py-2 rounded-xl bg-rose-500 text-white font-bold text-sm hover:bg-rose-600 disabled:opacity-50">Excluir</button>
               </div>
             </motion.div>
           </div>

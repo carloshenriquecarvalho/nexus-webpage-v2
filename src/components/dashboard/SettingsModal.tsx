@@ -33,6 +33,7 @@ export function SettingsModal({
 }: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState<"categories" | "costCenters" | "suppliers">("categories");
   const [isPending, startTransition] = useTransition();
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -109,7 +110,7 @@ export function SettingsModal({
         {/* Tabs */}
         <div className="flex gap-2 p-1 bg-white/5 rounded-xl mb-6">
           <button
-            onClick={() => setActiveTab("categories")}
+            onClick={() => { setActiveTab("categories"); setExpandedId(null); }}
             className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
               activeTab === "categories"
                 ? "bg-white/10 text-white shadow-sm"
@@ -119,7 +120,7 @@ export function SettingsModal({
             Categorias
           </button>
           <button
-            onClick={() => setActiveTab("costCenters")}
+            onClick={() => { setActiveTab("costCenters"); setExpandedId(null); }}
             className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
               activeTab === "costCenters"
                 ? "bg-white/10 text-white shadow-sm"
@@ -129,7 +130,7 @@ export function SettingsModal({
             Centros de Custo
           </button>
           <button
-            onClick={() => setActiveTab("suppliers")}
+            onClick={() => { setActiveTab("suppliers"); setExpandedId(null); }}
             className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
               activeTab === "suppliers"
                 ? "bg-white/10 text-white shadow-sm"
@@ -208,26 +209,51 @@ export function SettingsModal({
                 <motion.div
                   key={item.id}
                   layout
+                  onClick={() => activeTab === "suppliers" && setExpandedId(expandedId === item.id ? null : item.id)}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 group hover:border-white/20 transition-all"
+                  className={`flex flex-col p-3 rounded-xl bg-white/5 border border-white/10 group hover:border-white/20 transition-all ${activeTab === 'suppliers' ? 'cursor-pointer' : ''}`}
                 >
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-white/90">{item.name}</span>
-                    {activeTab === "suppliers" && ("cnpj_cpf" in item || "phone" in item) && ((item as Supplier).cnpj_cpf || (item as Supplier).phone) && (
-                      <span className="text-[10px] text-white/40 mt-0.5">
-                        {[(item as Supplier).cnpj_cpf, (item as Supplier).phone].filter(Boolean).join(" • ")}
-                      </span>
-                    )}
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-white/90">{item.name}</span>
+                      {activeTab === "suppliers" && expandedId !== item.id && ("cnpj_cpf" in item || "phone" in item) && ((item as Supplier).cnpj_cpf || (item as Supplier).phone) && (
+                        <span className="text-[10px] text-white/40 mt-0.5">
+                          {[(item as Supplier).cnpj_cpf, (item as Supplier).phone].filter(Boolean).join(" • ")}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
+                      disabled={isPending}
+                      className="p-1.5 rounded-md text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all disabled:opacity-50 flex-shrink-0"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    disabled={isPending}
-                    className="p-1.5 rounded-md text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all disabled:opacity-50 flex-shrink-0"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+
+                  {activeTab === "suppliers" && expandedId === item.id && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-2"
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-[10px] text-white/30 uppercase font-bold tracking-wider">CNPJ/CPF</span>
+                        <span className="text-xs text-white/80">{(item as Supplier).cnpj_cpf || "Não informado"}</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] text-white/30 uppercase font-bold tracking-wider">Telefone</span>
+                        <span className="text-xs text-white/80">{(item as Supplier).phone || "Não informado"}</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] text-white/30 uppercase font-bold tracking-wider">Endereço</span>
+                        <span className="text-xs text-white/80">{(item as Supplier).address || "Não informado"}</span>
+                      </div>
+                    </motion.div>
+                  )}
                 </motion.div>
               ))
             )}

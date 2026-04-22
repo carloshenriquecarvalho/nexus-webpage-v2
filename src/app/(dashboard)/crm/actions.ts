@@ -331,3 +331,97 @@ export async function createPipeline(name: string, companyId: string) {
   return { success: true, data: fullPipeline };
 }
 
+export async function updatePipeline(pipelineId: string, name: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('crm_pipelines')
+    .update({ name, updated_at: new Date().toISOString() })
+    .eq('id', pipelineId)
+    .select()
+    .single();
+
+  if (error) return { success: false, error };
+  revalidatePath('/crm');
+  return { success: true, data };
+}
+
+export async function deletePipeline(pipelineId: string) {
+  const supabase = await createClient();
+  
+  // Check if there are deals in any stage of this pipeline
+  const { data: stages } = await supabase
+    .from('crm_stages')
+    .select('id')
+    .eq('pipeline_id', pipelineId);
+
+  if (stages && stages.length > 0) {
+    const stageIds = stages.map(s => s.id);
+    const { data: deals } = await supabase
+      .from('crm_deals')
+      .select('id')
+      .in('stage_id', stageIds)
+      .limit(1);
+
+    if (deals && deals.length > 0) {
+      return { success: false, error: { message: "Não é possível excluir um funil que possui oportunidades ativas." } };
+    }
+  }
+
+  const { error } = await supabase
+    .from('crm_pipelines')
+    .delete()
+    .eq('id', pipelineId);
+
+  if (error) return { success: false, error };
+  revalidatePath('/crm');
+  return { success: true };
+}
+
+export async function createStage(pipelineId: string, name: string, position: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('crm_stages')
+    .insert([{ pipeline_id: pipelineId, name, position }])
+    .select()
+    .single();
+
+  if (error) return { success: false, error };
+  revalidatePath('/crm');
+  return { success: true, data };
+}
+
+export async function updateStage(stageId: string, name: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('crm_stages')
+    .update({ name })
+    .eq('id', stageId)
+    .select()
+    .single();
+
+  if (error) return { success: false, error };
+  revalidatePath('/crm');
+  return { success: true, data };
+}
+
+export async function deleteStage(stageId: string) {
+  const supabase = await createClient();
+  const { data: deals } = await supabase
+    .from('crm_deals')
+    .select('id')
+    .eq('stage_id', stageId)
+    .limit(1);
+
+  if (deals && deals.length > 0) {
+    return { success: false, error: { message: "Não é possível excluir uma etapa que possui oportunidades ativas." } };
+  }
+
+  const { error } = await supabase
+    .from('crm_stages')
+    .delete()
+    .eq('id', stageId);
+
+  if (error) return { success: false, error };
+  revalidatePath('/crm');
+  return { success: true };
+}
