@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, TrendingUp, Receipt, AlertCircle, Calendar as CalendarIcon, Filter, X, ChevronDown } from "lucide-react";
+import { Plus, TrendingUp, Receipt, AlertCircle, Calendar as CalendarIcon, Filter, X, ChevronDown, Settings } from "lucide-react";
 import { CompanyCard } from "@/components/dashboard/CompanyCard";
 import { CompanyForm } from "@/components/dashboard/CompanyForm";
 import { BillCard } from "@/components/dashboard/BillCard";
@@ -10,8 +10,9 @@ import { BillEditModal } from "@/components/dashboard/BillEditModal";
 import { BillDetailModal } from "@/components/dashboard/BillDetailModal";
 import { BillForm } from "@/components/dashboard/BillForm";
 import { EmptyState } from "@/components/dashboard/EmptyState";
-import type { Company, Bill } from "@/types/database";
-import { getEffectiveStatus, filterBillsByDate, getDaysUntilDue } from "@/utils/billUtils";
+import { SettingsModal } from "@/components/dashboard/SettingsModal";
+import type { Company, Bill, Category, CostCenter, Supplier } from "@/types/database";
+import { getEffectiveStatus, filterBillsByDate, getDaysUntilDue, getBillTotal } from "@/utils/billUtils";
 
 interface GestaoClientProps {
   companies: Company[];
@@ -22,6 +23,15 @@ interface GestaoClientProps {
   createBillAction: (fd: FormData) => Promise<{ error?: string; success?: boolean }>;
   updateBillAction: (fd: FormData) => Promise<{ error?: string; success?: boolean }>;
   deleteBillAction: (fd: FormData) => Promise<{ error?: string; success?: boolean }>;
+  categories: Category[];
+  costCenters: CostCenter[];
+  createCategoryAction: (fd: FormData) => Promise<{ error?: string; success?: boolean }>;
+  deleteCategoryAction: (fd: FormData) => Promise<{ error?: string; success?: boolean }>;
+  createCostCenterAction: (fd: FormData) => Promise<{ error?: string; success?: boolean }>;
+  deleteCostCenterAction: (fd: FormData) => Promise<{ error?: string; success?: boolean }>;
+  suppliers: Supplier[];
+  createSupplierAction: (fd: FormData) => Promise<{ error?: string; success?: boolean }>;
+  deleteSupplierAction: (fd: FormData) => Promise<{ error?: string; success?: boolean }>;
 }
 
 function formatCurrency(v: number) {
@@ -29,9 +39,12 @@ function formatCurrency(v: number) {
 }
 
 export function GestaoClient({
-  companies, bills,
+  companies, bills, categories, costCenters, suppliers,
   createCompanyAction, updateCompanyAction, deleteCompanyAction,
   createBillAction, updateBillAction, deleteBillAction,
+  createCategoryAction, deleteCategoryAction,
+  createCostCenterAction, deleteCostCenterAction,
+  createSupplierAction, deleteSupplierAction,
 }: GestaoClientProps) {
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>(companies[0]?.id ?? "");
   const [showCompanyForm, setShowCompanyForm] = useState(false);
@@ -39,6 +52,7 @@ export function GestaoClient({
   const [editingBill, setEditingBill] = useState<Bill | undefined>();
   const [viewingBill, setViewingBill] = useState<Bill | undefined>();
   const [showBillForm, setShowBillForm] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Filtros
   const [startDate, setStartDate] = useState<string>("");
@@ -51,6 +65,8 @@ export function GestaoClient({
   }, []);
   const [endDate, setEndDate] = useState<string>(defaultEndDate);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [initialBillForClone, setInitialBillForClone] = useState<Partial<Bill> | undefined>();
 
   const selectedCompany = companies.find(c => c.id === selectedCompanyId);
 
@@ -76,23 +92,28 @@ export function GestaoClient({
       list = list.filter(b => b.status === "Paga");
     }
 
+    // Filtro por categoria
+    if (categoryFilter !== "all") {
+      list = list.filter(b => b.category === categoryFilter);
+    }
+
     return list;
-  }, [bills, startDate, endDate, statusFilter]);
+  }, [bills, startDate, endDate, statusFilter, categoryFilter]);
 
   const filteredBills = processedBills.filter(b => b.company_id === selectedCompanyId);
 
   // Métricas globais (respeitando os filtros de data)
   const totalPending = processedBills.filter(b => b.status === "Pendente").length;
   const totalOverdue = processedBills.filter(b => b.status === "Vencido").length;
-  const totalAmount = processedBills.reduce((sum, b) => sum + Number(b.amount), 0);
+  const totalAmount = processedBills.reduce((sum, b) => sum + getBillTotal(b), 0);
 
   // Métricas por empresa (respeitando os filtros de data)
   const billCountFor = (id: string) => processedBills.filter(b => b.company_id === id).length;
   const pendingCountFor = (id: string) => processedBills.filter(b => b.company_id === id && b.status === "Pendente").length;
-  const totalAmountFor = (id: string) => processedBills.filter(b => b.company_id === id).reduce((s, b) => s + Number(b.amount), 0);
+  const totalAmountFor = (id: string) => processedBills.filter(b => b.company_id === id).reduce((s, b) => s + getBillTotal(b), 0);
 
-  const hasActiveFilters = startDate !== "" || endDate !== defaultEndDate || statusFilter !== "all";
-  const clearFilters = () => { setStartDate(""); setEndDate(defaultEndDate); setStatusFilter("all"); };
+  const hasActiveFilters = startDate !== "" || endDate !== defaultEndDate || statusFilter !== "all" || categoryFilter !== "all";
+  const clearFilters = () => { setStartDate(""); setEndDate(defaultEndDate); setStatusFilter("all"); setCategoryFilter("all"); };
 
   return (
     <div className="w-full max-w-5xl mx-auto p-6 md:p-10 space-y-8">
@@ -119,7 +140,19 @@ export function GestaoClient({
             </motion.button>
 
             <motion.button
-              onClick={() => setShowBillForm(true)}
+              onClick={() => setShowSettings(true)}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all"
+            >
+              <Settings size={16} />
+            </motion.button>
+
+            <motion.button
+              onClick={() => {
+                setInitialBillForClone(undefined);
+                setShowBillForm(true);
+              }}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               disabled={!selectedCompany}
@@ -146,6 +179,22 @@ export function GestaoClient({
               <option value="overdue" className="bg-[#111111]">Boletos Vencidos</option>
               <option value="pending" className="bg-[#111111]">Boletos Pendentes</option>
               <option value="paid" className="bg-[#111111]">Boletos Pagos</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-3 text-white/20 pointer-events-none" />
+          </div>
+
+          {/* Category Select Container */}
+          <div className="flex items-center gap-2 flex-1 min-w-[140px] px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl group hover:border-white/20 transition-all relative">
+            <Filter size={14} className="text-white/40 group-hover:text-white/60 transition-colors" />
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="w-full bg-transparent text-sm text-white/90 focus:outline-none cursor-pointer appearance-none pr-6 z-10"
+            >
+              <option value="all" className="bg-[#111111]">Todas as Categorias</option>
+              {categories.map(c => (
+                <option key={c.id} value={c.name} className="bg-[#111111]">{c.name}</option>
+              ))}
             </select>
             <ChevronDown size={14} className="absolute right-3 text-white/20 pointer-events-none" />
           </div>
@@ -279,6 +328,20 @@ export function GestaoClient({
                         deleteAction={deleteBillAction}
                         onEdit={b => setEditingBill(b)}
                         onView={b => setViewingBill(b)}
+                        onClone={b => {
+                          // Prepare initial data for cloning
+                          setInitialBillForClone({
+                            description: b.description + " (Cópia)",
+                            amount: b.amount,
+                            category: b.category,
+                            cost_center: b.cost_center,
+                            supplier: b.supplier,
+                            notes: b.notes,
+                            status: "Pendente",
+                            // PDF, payment details, and recurrences are not cloned by default
+                          });
+                          setShowBillForm(true);
+                        }}
                       />
                     ))}
                   </div>
@@ -352,8 +415,15 @@ export function GestaoClient({
             >
               <BillForm 
                 companyId={selectedCompany.id} 
+                categories={categories}
+                costCenters={costCenters}
+                suppliers={suppliers}
                 createAction={createBillAction} 
-                onClose={() => setShowBillForm(false)}
+                initialData={initialBillForClone}
+                onClose={() => {
+                  setShowBillForm(false);
+                  setInitialBillForClone(undefined);
+                }}
               />
             </motion.div>
 
@@ -372,6 +442,9 @@ export function GestaoClient({
           <BillEditModal
             key="bill-edit"
             bill={editingBill}
+            categories={categories}
+            costCenters={costCenters}
+            suppliers={suppliers}
             updateAction={updateBillAction}
             onClose={() => setEditingBill(undefined)}
           />
@@ -382,6 +455,21 @@ export function GestaoClient({
             bill={viewingBill}
             onClose={() => setViewingBill(undefined)}
             onEdit={() => setEditingBill(viewingBill)}
+          />
+        )}
+        {showSettings && (
+          <SettingsModal
+            key="settings-modal"
+            categories={categories}
+            costCenters={costCenters}
+            suppliers={suppliers}
+            createCategoryAction={createCategoryAction}
+            deleteCategoryAction={deleteCategoryAction}
+            createCostCenterAction={createCostCenterAction}
+            deleteCostCenterAction={deleteCostCenterAction}
+            createSupplierAction={createSupplierAction}
+            deleteSupplierAction={deleteSupplierAction}
+            onClose={() => setShowSettings(false)}
           />
         )}
       </AnimatePresence>

@@ -7,6 +7,24 @@ export interface Company {
   logo_url?: string | null;
 }
 
+export interface Category {
+  id: string; // uuid
+  user_id: string; // uuid
+  name: string;
+}
+
+export interface CostCenter {
+  id: string; // uuid
+  user_id: string; // uuid
+  name: string;
+}
+
+export interface Supplier {
+  id: string; // uuid
+  user_id: string; // uuid
+  name: string;
+}
+
 export interface Bill {
   id: string; // uuid
   company_id: string; // fk
@@ -21,4 +39,9 @@ export interface Bill {
   cost_center?: string | null;
   pdf_url?: string | null;
   recurrent_group_id?: string | null;
+  notes?: string | null;
+  penalty?: number | null;
+  interest?: number | null;
+  receipt_url?: string | null;
+  supplier?: string | null;
 }

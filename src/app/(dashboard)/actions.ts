@@ -24,6 +24,16 @@ export async function createBill(formData: FormData) {
     const status = formData.get("status") as string || "Pendente";
     const category = formData.get("category") as string || null;
     const cost_center = formData.get("cost_center") as string || null;
+    const supplier = formData.get("supplier") as string || null;
+    const notes = formData.get("notes") as string || null;
+    
+    let penalty = null;
+    let interest = null;
+    if (status === "Paga") {
+      penalty = formData.get("penalty") ? parseFloat(formData.get("penalty") as string) : null;
+      interest = formData.get("interest") ? parseFloat(formData.get("interest") as string) : null;
+    }
+
     const overdue_date = formData.get("overdue_date") as string;
     const notification_date = formData.get("notification_date") as string;
     const company_id = formData.get("company_id") as string;
@@ -56,6 +66,19 @@ export async function createBill(formData: FormData) {
           .from('bills-attachments')
           .getPublicUrl(fileName);
         pdf_url = publicUrl;
+      }
+    }
+
+    // UPLOAD RECEIPT IF PAGA AND EXISTS
+    const receiptFile = formData.get("receipt_file") as File;
+    let receipt_url: string | null = null;
+    if (status === "Paga" && receiptFile && receiptFile.size > 0) {
+      const fileExt = receiptFile.name.split('.').pop();
+      const fileName = `receipt_${user.id}/${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('bills-attachments').upload(fileName, receiptFile);
+      if (!uploadError) {
+        const { data: { publicUrl } } = supabase.storage.from('bills-attachments').getPublicUrl(fileName);
+        receipt_url = publicUrl;
       }
     }
 
@@ -128,10 +151,15 @@ export async function createBill(formData: FormData) {
         category,
         cost_center,
         pdf_url,
+        receipt_url,
         overdue_date: current_overdue,
         notification_date: current_notification,
         google_event_id,
         recurrent_group_id,
+        notes,
+        penalty,
+        interest,
+        supplier,
       });
     }
 
@@ -166,7 +194,17 @@ export async function updateBill(formData: FormData) {
     const amount = parseFloat(formData.get("amount") as string);
     const category = (formData.get("category") as string)?.trim() || null;
     const cost_center = (formData.get("cost_center") as string)?.trim() || null;
+    const supplier = (formData.get("supplier") as string)?.trim() || null;
+    const notes = (formData.get("notes") as string)?.trim() || null;
     const status = formData.get("status") as string;
+    
+    let penalty = null;
+    let interest = null;
+    if (status === "Paga") {
+      penalty = formData.get("penalty") ? parseFloat(formData.get("penalty") as string) : null;
+      interest = formData.get("interest") ? parseFloat(formData.get("interest") as string) : null;
+    }
+
     const overdue_date = (formData.get("overdue_date") as string) || null;
     const notification_date = (formData.get("notification_date") as string) || null;
     const payment_date = (formData.get("payment_date") as string) || null;
@@ -194,6 +232,19 @@ export async function updateBill(formData: FormData) {
       }
     }
 
+    // UPLOAD NEW RECEIPT IF EXISTS
+    const receiptFile = formData.get("receipt_file") as File;
+    let receipt_url: string | null = formData.get("existing_receipt_url") as string || null;
+    if (status === "Paga" && receiptFile && receiptFile.size > 0) {
+      const fileExt = receiptFile.name.split('.').pop();
+      const fileName = `receipt_${user.id}/${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('bills-attachments').upload(fileName, receiptFile);
+      if (!uploadError) {
+        const { data: { publicUrl } } = supabase.storage.from('bills-attachments').getPublicUrl(fileName);
+        receipt_url = publicUrl;
+      }
+    }
+
     const { error: dbError } = await supabase
       .from("bills")
       .update({
@@ -205,7 +256,12 @@ export async function updateBill(formData: FormData) {
         overdue_date,
         notification_date,
         payment_date,
-        pdf_url
+        pdf_url,
+        receipt_url,
+        supplier,
+        notes,
+        penalty,
+        interest
       })
       .eq("id", id)
       .eq("user_id", user.id);
@@ -309,6 +365,150 @@ export async function deleteCompany(formData: FormData) {
     const id = formData.get("id") as string;
     const { error: dbError } = await supabase
       .from("companies")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (dbError) return { error: dbError.message };
+
+    revalidatePath("/gestao");
+    return { success: true };
+  } catch (error) {
+    return { error: "Erro interno." };
+  }
+}
+
+/**
+ * CATEGORIAS - CRUD
+ */
+export async function createCategory(formData: FormData) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return { error: "Usuário não autenticado." };
+
+    const name = (formData.get("name") as string)?.trim();
+    if (!name) return { error: "Nome é obrigatório." };
+
+    const { error: dbError } = await supabase.from("categories").insert({
+      user_id: user.id,
+      name,
+    });
+
+    if (dbError) return { error: dbError.message };
+
+    revalidatePath("/gestao");
+    return { success: true };
+  } catch (error) {
+    return { error: "Erro interno." };
+  }
+}
+
+export async function deleteCategory(formData: FormData) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return { error: "Usuário não autenticado." };
+
+    const id = formData.get("id") as string;
+    const { error: dbError } = await supabase
+      .from("categories")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (dbError) return { error: dbError.message };
+
+    revalidatePath("/gestao");
+    return { success: true };
+  } catch (error) {
+    return { error: "Erro interno." };
+  }
+}
+
+/**
+ * CENTROS DE CUSTO - CRUD
+ */
+export async function createCostCenter(formData: FormData) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return { error: "Usuário não autenticado." };
+
+    const name = (formData.get("name") as string)?.trim();
+    if (!name) return { error: "Nome é obrigatório." };
+
+    const { error: dbError } = await supabase.from("cost_centers").insert({
+      user_id: user.id,
+      name,
+    });
+
+    if (dbError) return { error: dbError.message };
+
+    revalidatePath("/gestao");
+    return { success: true };
+  } catch (error) {
+    return { error: "Erro interno." };
+  }
+}
+
+export async function deleteCostCenter(formData: FormData) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return { error: "Usuário não autenticado." };
+
+    const id = formData.get("id") as string;
+    const { error: dbError } = await supabase
+      .from("cost_centers")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (dbError) return { error: dbError.message };
+
+    revalidatePath("/gestao");
+    return { success: true };
+  } catch (error) {
+    return { error: "Erro interno." };
+  }
+}
+
+/**
+ * FORNECEDORES - CRUD
+ */
+export async function createSupplier(formData: FormData) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return { error: "Usuário não autenticado." };
+
+    const name = (formData.get("name") as string)?.trim();
+    if (!name) return { error: "Nome é obrigatório." };
+
+    const { error: dbError } = await supabase.from("suppliers").insert({
+      user_id: user.id,
+      name,
+    });
+
+    if (dbError) return { error: dbError.message };
+
+    revalidatePath("/gestao");
+    return { success: true };
+  } catch (error) {
+    return { error: "Erro interno." };
+  }
+}
+
+export async function deleteSupplier(formData: FormData) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return { error: "Usuário não autenticado." };
+
+    const id = formData.get("id") as string;
+    const { error: dbError } = await supabase
+      .from("suppliers")
       .delete()
       .eq("id", id)
       .eq("user_id", user.id);

@@ -3,15 +3,16 @@
 import React, { useTransition } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Trash2, Calendar, Tag, Pencil, CalendarCheck2, CheckCircle2, Clock, AlertCircle, FileText, Hash, AlertTriangle } from "lucide-react";
+import { Trash2, Calendar, Tag, Pencil, CalendarCheck2, CheckCircle2, Clock, AlertCircle, FileText, Hash, AlertTriangle, Copy } from "lucide-react";
 import type { Bill, BillStatus } from "@/types/database";
-import { getImminentWarning } from "@/utils/billUtils";
+import { getImminentWarning, getBillTotal } from "@/utils/billUtils";
 
 interface BillCardProps {
   bill: Bill;
   deleteAction: (formData: FormData) => Promise<{ error?: string; success?: boolean }>;
   onEdit: (bill: Bill) => void;
   onView: (bill: Bill) => void;
+  onClone?: (bill: Bill) => void;
 }
 
 const statusConfig: Record<BillStatus, { label: string; dot: string; text: string; bg: string; border: string; icon: React.ReactNode }> = {
@@ -50,7 +51,7 @@ function formatCurrency(v: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
 }
 
-export function BillCard({ bill, deleteAction, onEdit, onView }: BillCardProps) {
+export function BillCard({ bill, deleteAction, onEdit, onView, onClone }: BillCardProps) {
   const [isPending, startTransition] = useTransition();
   const s = statusConfig[bill.status];
   const warning = getImminentWarning(bill);
@@ -130,10 +131,26 @@ export function BillCard({ bill, deleteAction, onEdit, onView }: BillCardProps) 
 
       {/* Right side */}
       <div className="flex items-center justify-between md:justify-end gap-4 flex-shrink-0 w-full md:w-auto mt-2 md:mt-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/5">
-        <span className="text-base font-bold text-white tracking-tight">{formatCurrency(bill.amount)}</span>
+        <div className="flex flex-col items-end">
+          <span className="text-base font-bold text-white tracking-tight">{formatCurrency(getBillTotal(bill))}</span>
+          {(Number(bill.penalty) > 0 || Number(bill.interest) > 0) && (
+            <span className="text-[10px] text-white/30 truncate max-w-[120px]" title="Inclui multa/juros">
+              Original: {formatCurrency(Number(bill.amount))}
+            </span>
+          )}
+        </div>
 
         {/* Actions */}
         <div className="flex gap-1.5 opacity-60 md:opacity-0 group-hover:opacity-100 transition-opacity">
+          {onClone && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onClone(bill); }}
+              className="cursor-pointer w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all"
+              title="Clonar"
+            >
+              <Copy size={13} />
+            </button>
+          )}
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(bill); }}
             className="cursor-pointer w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all"

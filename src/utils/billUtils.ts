@@ -66,3 +66,13 @@ export function getImminentWarning(bill: Bill): string | null {
   
   return null;
 }
+
+/**
+ * Retorna o valor total do boleto, somando multa e juros se existirem.
+ */
+export function getBillTotal(bill: Bill): number {
+  const baseAmount = Number(bill.amount) || 0;
+  const penalty = Number(bill.penalty) || 0;
+  const interest = Number(bill.interest) || 0;
+  return baseAmount + penalty + interest;
+}

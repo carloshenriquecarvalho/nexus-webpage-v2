@@ -4,10 +4,10 @@ import React from "react";
 import { motion } from "framer-motion";
 import { 
   X, Calendar, Tag, CreditCard, Hash, FileText, 
-  Download, Pencil, CheckCircle2, Clock, AlertCircle 
+  Download, Pencil, CheckCircle2, Clock, AlertCircle, TrendingUp, Truck, FileText as FileTextIcon, Receipt
 } from "lucide-react";
 import type { Bill, BillStatus } from "@/types/database";
-import { getEffectiveStatus } from "@/utils/billUtils";
+import { getEffectiveStatus, getBillTotal } from "@/utils/billUtils";
 
 interface BillDetailModalProps {
   bill: Bill;
@@ -84,12 +84,21 @@ export function BillDetailModal({ bill, onClose, onEdit }: BillDetailModalProps)
 
         <div className="p-8 space-y-8">
           {/* Status & Amount Area */}
-          <div className="flex items-center justify-between p-6 rounded-3xl bg-white/3 border border-white/5">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[11px] font-bold ${s.text} ${s.bg} ${s.border}`}>
-              {s.icon}
-              <span className="uppercase tracking-wider">{s.label}</span>
+          <div className="flex flex-col p-6 rounded-3xl bg-white/3 border border-white/5 gap-4">
+            <div className="flex items-center justify-between">
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[11px] font-bold ${s.text} ${s.bg} ${s.border}`}>
+                {s.icon}
+                <span className="uppercase tracking-wider">{s.label}</span>
+              </div>
+              <p className="text-2xl font-bold text-white">{formatCurrency(getBillTotal(bill))}</p>
             </div>
-            <p className="text-2xl font-bold text-white">{formatCurrency(bill.amount)}</p>
+            {(Number(bill.penalty) > 0 || Number(bill.interest) > 0) && (
+              <div className="flex flex-col gap-1 items-end w-full pt-4 border-t border-white/10">
+                <p className="text-xs text-white/40">Valor Original: <span className="text-white/60">{formatCurrency(Number(bill.amount))}</span></p>
+                {Number(bill.penalty) > 0 && <p className="text-xs text-white/40">Multa: <span className="text-[#F24639]">{formatCurrency(Number(bill.penalty))}</span></p>}
+                {Number(bill.interest) > 0 && <p className="text-xs text-white/40">Juros: <span className="text-amber-400">{formatCurrency(Number(bill.interest))}</span></p>}
+              </div>
+            )}
           </div>
 
           {/* Grid Info */}
@@ -137,26 +146,73 @@ export function BillDetailModal({ bill, onClose, onEdit }: BillDetailModalProps)
                 </div>
               </div>
             </div>
+
+            {(bill.supplier || bill.notes) && (
+              <div className="grid grid-cols-1 gap-6 pt-6 border-t border-white/10">
+                {bill.supplier && (
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-white/30 flex-shrink-0">
+                      <Truck size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-white/20 uppercase tracking-wider">Fornecedor</p>
+                      <p className="text-sm font-medium text-white/80">{bill.supplier}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {bill.notes && (
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-white/30 flex-shrink-0">
+                      <FileTextIcon size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-white/20 uppercase tracking-wider">Observações</p>
+                      <p className="text-sm font-medium text-white/80">{bill.notes}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* PDF Section */}
           <div className="pt-4 space-y-4">
-            {bill.pdf_url ? (
-              <a 
-                href={bill.pdf_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-white text-black font-bold text-sm hover:bg-white/90 transition-all shadow-xl"
-              >
-                <Download size={18} />
-                <span>Baixar Boleto (PDF)</span>
-              </a>
-            ) : (
-              <div className="flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed border-white/5 text-white/20">
-                <FileText size={24} className="mb-2 opacity-50" />
-                <p className="text-xs">Nenhum PDF anexado</p>
-              </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {bill.pdf_url ? (
+                <a 
+                  href={bill.pdf_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-white text-black font-bold text-sm hover:bg-white/90 transition-all shadow-xl"
+                >
+                  <Download size={18} />
+                  <span>Boleto (PDF)</span>
+                </a>
+              ) : (
+                <div className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-white/5 text-white/20 h-full">
+                  <FileTextIcon size={20} className="mb-2 opacity-50" />
+                  <p className="text-[11px]">Nenhum Boleto anexado</p>
+                </div>
+              )}
+
+              {bill.receipt_url ? (
+                <a 
+                  href={bill.receipt_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-indigo-500 text-white font-bold text-sm hover:bg-indigo-400 transition-all shadow-xl"
+                >
+                  <Receipt size={18} />
+                  <span>Comprovante (PDF)</span>
+                </a>
+              ) : (
+                <div className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-white/5 text-white/20 h-full">
+                  <Receipt size={20} className="mb-2 opacity-50" />
+                  <p className="text-[11px]">Nenhum Comprovante</p>
+                </div>
+              )}
+            </div>
 
             <button 
               onClick={() => { onClose(); onEdit(); }}
