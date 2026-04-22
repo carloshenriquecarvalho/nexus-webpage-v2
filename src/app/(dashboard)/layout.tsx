@@ -30,30 +30,31 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         <nav className="flex flex-col gap-1 flex-1">
           <Link
             href="/gestao"
-            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm"
+            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm group"
           >
-            <FileText size={16} className="text-[var(--accent)]" />
+            <FileText size={16} className="text-white/50 group-hover:text-[var(--accent)] transition-colors" />
             <span>Contas a Pagar</span>
           </Link>
+
           <Link
             href="/crm"
-            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm"
+            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm group"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/50 hover:text-[var(--accent)]"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M8 7v6"/><path d="M16 7v10"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/50 group-hover:text-[var(--accent)] transition-colors"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M8 7v6"/><path d="M16 7v10"/></svg>
             <span>CRM</span>
           </Link>
           <Link
             href="/martech-lab"
-            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm"
+            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm group"
           >
-            <Globe size={16} className="text-white/50" />
+            <Globe size={16} className="text-white/50 group-hover:text-[var(--accent)] transition-colors" />
             <span>Martech Lab</span>
           </Link>
           <Link
             href="/"
-            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl mt-auto text-white/50 hover:text-white hover:bg-white/5 transition-all text-sm"
+            className="flex items-center space-x-3 px-3 py-2.5 rounded-xl mt-auto text-white/50 hover:text-white hover:bg-white/5 transition-all text-sm group"
           >
-            <Globe size={16} />
+            <Globe size={16} className="text-white/50 group-hover:text-[var(--accent)] transition-colors" />
             <span>Voltar ao site</span>
           </Link>
         </nav>
@@ -78,9 +79,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           }}>
             <button
               type="submit"
-              className="flex items-center space-x-2 px-3 py-2.5 rounded-xl text-white/50 hover:text-[var(--accent)] hover:bg-white/5 transition-all text-sm w-full"
+              className="flex items-center space-x-2 px-3 py-2.5 rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-all text-sm w-full group"
             >
-              <LogOut size={15} />
+              <LogOut size={15} className="text-white/50 group-hover:text-[var(--accent)] transition-colors" />
               <span>Sair do Painel</span>
             </button>
           </form>

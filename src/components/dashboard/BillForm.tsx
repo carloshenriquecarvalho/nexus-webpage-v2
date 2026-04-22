@@ -8,13 +8,16 @@ import { toast } from "sonner";
 interface BillFormProps {
   companyId: string;
   createAction: (formData: FormData) => Promise<{ error?: string; success?: boolean }>;
+  onClose?: () => void;
 }
 
-export function BillForm({ companyId, createAction }: BillFormProps) {
+export function BillForm({ companyId, createAction, onClose }: BillFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isRecurring, setIsRecurring] = useState(false);
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -46,6 +49,8 @@ export function BillForm({ companyId, createAction }: BillFormProps) {
           toast.success("Conta cadastrada!", { description: "Lançamento realizado com sucesso." });
           formRef.current?.reset();
           setSelectedFile(null);
+          // Fechar modal após sucesso se onClose existir
+          if (onClose) onClose();
         }
       } catch {
         toast.error("Erro inesperado");
@@ -57,13 +62,23 @@ export function BillForm({ companyId, createAction }: BillFormProps) {
   const labelClass = "text-xs font-semibold text-white/50 uppercase tracking-wider";
 
   return (
-    <div className="bg-[#111111] border border-white/8 rounded-3xl p-6 md:p-7">
+    <div className="bg-[#111111] border border-white/8 rounded-3xl p-6 md:p-7 relative">
+      {onClose && (
+        <button 
+          onClick={onClose}
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/5 text-white/30 hover:text-white transition-all z-10"
+        >
+          <X size={20} />
+        </button>
+      )}
+
       <div className="mb-6">
         <h3 className="text-lg font-bold text-white">Novo Lançamento</h3>
         <p className="text-white/40 text-xs mt-1">
           Gerencie suas contas a pagar com precisão. Anexe o boleto original para maior controle.
         </p>
       </div>
+
 
       <form ref={formRef} action={actionHandler} className="space-y-4">
         {/* Descrição */}
@@ -183,6 +198,52 @@ export function BillForm({ companyId, createAction }: BillFormProps) {
           </div>
         </div>
 
+        {/* Recorrência */}
+        <div className="space-y-4 pt-2">
+          <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                <Calendar size={18} />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-white">Recorrência</p>
+                <p className="text-[10px] text-white/30 uppercase">Gerar parcelas mensais</p>
+              </div>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                name="is_recurring" 
+                className="sr-only peer" 
+                onChange={(e) => setIsRecurring(e.target.checked)}
+              />
+              <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+            </label>
+          </div>
+
+          {isRecurring && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="space-y-2 pl-4 border-l-2 border-indigo-500/30"
+            >
+              <span className={labelClass}>Repetir por quantos meses?</span>
+              <div className="relative">
+                <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                <input 
+                  name="recurrence_count" 
+                  type="number" 
+                  min="2" 
+                  defaultValue="2"
+                  required={isRecurring}
+                  className={inputClass} 
+                  placeholder="Mínimo 2 meses" 
+                />
+              </div>
+            </motion.div>
+          )}
+        </div>
+
         {/* Notificação */}
         <label className="block space-y-2 pt-2">
           <span className={labelClass}>Lembrete no Calendar</span>
@@ -195,6 +256,7 @@ export function BillForm({ companyId, createAction }: BillFormProps) {
             />
           </div>
         </label>
+
 
         <motion.button
           type="submit"

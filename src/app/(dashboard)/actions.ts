@@ -28,6 +28,10 @@ export async function createBill(formData: FormData) {
     const notification_date = formData.get("notification_date") as string;
     const company_id = formData.get("company_id") as string;
 
+    // RECURRENCE
+    const is_recurring = formData.get("is_recurring") === "on";
+    const recurrence_count = parseInt(formData.get("recurrence_count") as string) || 1;
+
     // PDF ATTACHMENT
     const file = formData.get("pdf_file") as File;
     let pdf_url: string | null = null;
@@ -55,60 +59,85 @@ export async function createBill(formData: FormData) {
       }
     }
 
-    let google_event_id: string | null = null;
-
-    // 4. INTEGRAÇÃO COM GOOGLE CALENDAR
-    if (notification_date && calendarToken) {
-      const eventDetails = {
-        summary: `💰 Pagamento: ${description}`,
-        description: `Lembrete Nexus Tecnologia\nValor: R$ ${amount.toFixed(2)}\nVencimento: ${overdue_date || "Não informado"}\nCategoria: ${category || "—"}`,
-        start: { date: notification_date },
-        end: { date: notification_date },
-        reminders: {
-          useDefault: false,
-          overrides: [
-            { method: "popup", minutes: 60 },
-            { method: "email", minutes: 1440 },
-          ],
-        },
-      };
-
-      try {
-        const calResponse = await fetch(
-          "https://www.googleapis.com/calendar/v3/calendars/primary/events",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${calendarToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(eventDetails),
-          }
-        );
-
-        if (calResponse.ok) {
-          const calData = await calResponse.json();
-          google_event_id = calData.id;
-        }
-      } catch {
-        console.error("[createBill] Erro de rede Google");
+    const recurrent_group_id = is_recurring ? crypto.randomUUID() : null;
+    const iterations = is_recurring ? Math.max(1, recurrence_count) : 1;
+    
+    // Helper para adicionar meses à data
+    const addMonths = (dateStr: string | null, months: number) => {
+      if (!dateStr) return null;
+      const [year, month, day] = dateStr.split("-").map(Number);
+      const date = new Date(year, month - 1 + months, day);
+      // Garantir que não pulou meses por causa de dias 31 -> 30/28
+      if (date.getDate() !== day) {
+        date.setDate(0); // Volta para o último dia do mês anterior
       }
+      return date.toISOString().split('T')[0];
+    };
+
+    const billsToInsert = [];
+
+    for (let i = 0; i < iterations; i++) {
+      let google_event_id: string | null = null;
+      const current_overdue = addMonths(overdue_date || null, i);
+      const current_notification = addMonths(notification_date || null, i);
+
+      // 4. INTEGRAÇÃO COM GOOGLE CALENDAR
+      if (current_notification && calendarToken) {
+        const eventDetails = {
+          summary: `💰 Pagamento: ${description} (${i + 1}/${iterations})`,
+          description: `Lembrete Nexus Tecnologia\nValor: R$ ${amount.toFixed(2)}\nVencimento: ${current_overdue || "Não informado"}\nCategoria: ${category || "—"}`,
+          start: { date: current_notification },
+          end: { date: current_notification },
+          reminders: {
+            useDefault: false,
+            overrides: [
+              { method: "popup", minutes: 60 },
+              { method: "email", minutes: 1440 },
+            ],
+          },
+        };
+
+        try {
+          const calResponse = await fetch(
+            "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${calendarToken}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(eventDetails),
+            }
+          );
+
+          if (calResponse.ok) {
+            const calData = await calResponse.json();
+            google_event_id = calData.id;
+          }
+        } catch {
+          console.error("[createBill] Erro de rede Google");
+        }
+      }
+
+      billsToInsert.push({
+        company_id,
+        user_id: user.id,
+        description: is_recurring ? `${description} (${i + 1}/${iterations})` : description,
+        amount,
+        status,
+        category,
+        cost_center,
+        pdf_url,
+        overdue_date: current_overdue,
+        notification_date: current_notification,
+        google_event_id,
+        recurrent_group_id,
+      });
     }
 
     // 5. PERSISTÊNCIA NO SUPABASE
-    const { error: dbError } = await supabase.from("bills").insert({
-      company_id,
-      user_id: user.id,
-      description,
-      amount,
-      status,
-      category,
-      cost_center,
-      pdf_url,
-      overdue_date: overdue_date || null,
-      notification_date: notification_date || null,
-      google_event_id,
-    });
+    const { error: dbError } = await supabase.from("bills").insert(billsToInsert);
+
 
     if (dbError) {
       console.error("[createBill] DB Error:", dbError);

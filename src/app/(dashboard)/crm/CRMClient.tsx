@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
-import { 
-  DragDropContext, 
-  Droppable, 
-  Draggable, 
-  DropResult 
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult
 } from "@hello-pangea/dnd";
-import { 
-  Plus, MoreVertical, DollarSign, Calendar, User, 
+import {
+  Plus, MoreVertical, DollarSign, Calendar, User,
   Search, X, Layout, Briefcase, Mail, Phone,
   CheckCircle2, XCircle, Circle, Pencil, Trash2,
   Kanban, Users, AlertTriangle
@@ -42,9 +42,9 @@ interface CRMClientProps {
 }
 
 const STATUS_CONFIG = {
-  open:  { label: "Aberto",  icon: Circle,        color: "text-white/30",   border: "border-white/5",         bg: "bg-white/5" },
-  won:   { label: "Ganho",   icon: CheckCircle2,  color: "text-emerald-400", border: "border-emerald-400/20", bg: "bg-emerald-400/5" },
-  lost:  { label: "Perdido", icon: XCircle,       color: "text-rose-400",   border: "border-rose-400/20",     bg: "bg-rose-400/5" },
+  open: { label: "Aberto", icon: Circle, color: "text-white/30", border: "border-white/5", bg: "bg-white/5" },
+  won: { label: "Ganho", icon: CheckCircle2, color: "text-emerald-400", border: "border-emerald-400/20", bg: "bg-emerald-400/5" },
+  lost: { label: "Perdido", icon: XCircle, color: "text-rose-400", border: "border-rose-400/20", bg: "bg-rose-400/5" },
 };
 
 /* ──────────────────────────────────────────────
@@ -63,9 +63,9 @@ interface DealModalProps {
 }
 
 function DealModal({ mode, deal, contacts, isPending, onClose, onSubmit }: DealModalProps) {
-  const [title, setTitle]         = useState(deal?.title ?? "");
-  const [value, setValue]         = useState(deal?.value?.toString() ?? "");
-  const [status, setStatus]       = useState(deal?.status ?? "open");
+  const [title, setTitle] = useState(deal?.title ?? "");
+  const [value, setValue] = useState(deal?.value?.toString() ?? "");
+  const [status, setStatus] = useState(deal?.status ?? "open");
   const [contactId, setContactId] = useState(deal?.contact_id ?? "");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -169,11 +169,10 @@ function DealModal({ mode, deal, contacts, isPending, onClose, onSubmit }: DealM
                     key={key}
                     type="button"
                     onClick={() => setStatus(key)}
-                    className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-semibold transition-all ${
-                      active
+                    className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-semibold transition-all ${active
                         ? `${cfg.color} ${cfg.border} ${cfg.bg}`
                         : "text-white/20 border-white/5 bg-transparent hover:border-white/10 hover:text-white/40"
-                    }`}
+                      }`}
                   >
                     <Icon size={13} />
                     {cfg.label}
@@ -240,11 +239,10 @@ function DealModal({ mode, deal, contacts, isPending, onClose, onSubmit }: DealM
           <button
             type="submit"
             disabled={isPending}
-            className={`w-full py-4 rounded-2xl font-bold transition-all shadow-lg disabled:opacity-50 mt-2 text-sm ${
-              isEdit
+            className={`w-full py-4 rounded-2xl font-bold transition-all shadow-lg disabled:opacity-50 mt-2 text-sm ${isEdit
                 ? "bg-[var(--accent)] text-black hover:brightness-110"
                 : "bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:brightness-110"
-            }`}
+              }`}
           >
             {isPending
               ? (isEdit ? "Salvando..." : "Criando...")
@@ -269,13 +267,13 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
   );
   const [activeTab, setActiveTab] = useState<"kanban" | "contacts">("kanban");
   const [isPending, startTransition] = useTransition();
-  
+
   // Modais
   const [showPipelineModal, setShowPipelineModal] = useState(false);
   const [createModal, setCreateModal] = useState<{ show: boolean; stageId: string | null }>({ show: false, stageId: null });
-  const [editModal, setEditModal]     = useState<{ show: boolean; deal: Deal | null }>({ show: false, deal: null });
+  const [editModal, setEditModal] = useState<{ show: boolean; deal: Deal | null }>({ show: false, deal: null });
   const [deleteModal, setDeleteModal] = useState<{ show: boolean; deal: Deal | null }>({ show: false, deal: null });
-  const [drawerDeal, setDrawerDeal]   = useState<Deal | null>(null);
+  const [drawerDeal, setDrawerDeal] = useState<Deal | null>(null);
 
   // Filtros Kanban
   const [filterSearch, setFilterSearch] = useState("");
@@ -322,8 +320,14 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
         if (!activePipelineId) setActivePipelineId(result.data.id);
         setShowPipelineModal(false);
         toast.success("Funil criado com sucesso!");
+      } else {
+        console.error("Erro ao criar funil:", result.error);
+        toast.error("Erro ao criar funil", {
+          description: result.error?.message || "Ocorreu um erro inesperado."
+        });
       }
     });
+
   };
 
   // ── Criar Deal ──
@@ -383,26 +387,6 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
     });
   };
 
-  // ── Empty state ──
-  if (!activePipelineId && pipelines.length === 0) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center p-10 text-center">
-        <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
-          <Plus className="text-[var(--accent)]" size={32} />
-        </div>
-        <h1 className="text-2xl font-bold mb-2 text-white">Bem-vindo ao seu CRM</h1>
-        <p className="text-white/40 mb-8 max-w-md">Gerencie seus leads e oportunidades de forma visual e intuitiva com o estilo Kanban do Nexus.</p>
-        <button
-          onClick={() => setShowPipelineModal(true)}
-          className="px-6 py-3 rounded-xl bg-[var(--accent)] text-black font-bold hover:opacity-90 transition-all flex items-center space-x-2"
-        >
-          <Plus size={18} />
-          <span>Criar meu primeiro Funil</span>
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -412,22 +396,20 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
           <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1">
             <button
               onClick={() => setActiveTab("kanban")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "kanban"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "kanban"
                   ? "bg-white/10 text-white shadow"
                   : "text-white/30 hover:text-white/60"
-              }`}
+                }`}
             >
               <Kanban size={15} />
               Kanban
             </button>
             <button
               onClick={() => setActiveTab("contacts")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "contacts"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "contacts"
                   ? "bg-white/10 text-white shadow"
                   : "text-white/30 hover:text-white/60"
-              }`}
+                }`}
             >
               <Users size={15} />
               Contatos
@@ -491,11 +473,10 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
                 <button
                   key={s}
                   onClick={() => setFilterStatus(active ? null : s)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-semibold transition-all ${
-                    active
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-semibold transition-all ${active
                       ? `${cfg.color} ${cfg.border} ${cfg.bg}`
                       : "text-white/25 border-white/5 hover:border-white/15 hover:text-white/50"
-                  }`}
+                    }`}
                 >
                   <Icon size={11} />
                   {cfg.label}
@@ -533,7 +514,29 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
               onContactsChange={setContacts}
             />
           </motion.div>
+        ) : (!activePipelineId && pipelines.length === 0) ? (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="flex-1 flex flex-col items-center justify-center p-10 text-center"
+          >
+            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
+              <Plus className="text-[var(--accent)]" size={32} />
+            </div>
+            <h1 className="text-2xl font-bold mb-2 text-white">Bem-vindo ao seu CRM</h1>
+            <p className="text-white/40 mb-8 max-w-md">Gerencie seus leads e oportunidades de forma visual e intuitiva com o estilo Kanban do Nexus.</p>
+            <button
+              onClick={() => setShowPipelineModal(true)}
+              className="px-6 py-3 rounded-xl bg-[var(--accent)] text-black font-bold hover:opacity-90 transition-all flex items-center space-x-2"
+            >
+              <Plus size={18} />
+              <span>Criar meu primeiro Funil</span>
+            </button>
+          </motion.div>
         ) : (
+
           <motion.div
             key="kanban"
             initial={{ opacity: 0, x: -10 }}
@@ -542,144 +545,144 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
             transition={{ duration: 0.15 }}
             className="flex-1 overflow-x-auto p-6 bg-[#0a0a0a]"
           >
-        <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex gap-6 h-full min-h-[calc(100vh-200px)]">
-            {activePipeline?.crm_stages?.map((stage: any) => {
-              const stageDeals = activePipelineDeals
-                .filter(deal => deal.stage_id === stage.id)
-                .filter(deal => {
-                  // filtro de status
-                  if (filterStatus && deal.status !== filterStatus) return false;
-                  // filtro de texto — título ou nome do contato ou telefone do contato
-                  if (filterSearch) {
-                    const q = filterSearch.toLowerCase();
-                    const matchTitle   = deal.title.toLowerCase().includes(q);
-                    const matchContact = deal.crm_contacts?.name?.toLowerCase().includes(q);
-                    const matchPhone   = deal.crm_contacts?.phone?.includes(filterSearch);
-                    if (!matchTitle && !matchContact && !matchPhone) return false;
-                  }
-                  return true;
-                })
-                .sort((a, b) => a.position - b.position);
+            <DragDropContext onDragEnd={onDragEnd}>
+              <div className="flex gap-6 h-full min-h-[calc(100vh-200px)]">
+                {activePipeline?.crm_stages?.map((stage: any) => {
+                  const stageDeals = activePipelineDeals
+                    .filter(deal => deal.stage_id === stage.id)
+                    .filter(deal => {
+                      // filtro de status
+                      if (filterStatus && deal.status !== filterStatus) return false;
+                      // filtro de texto — título ou nome do contato ou telefone do contato
+                      if (filterSearch) {
+                        const q = filterSearch.toLowerCase();
+                        const matchTitle = deal.title.toLowerCase().includes(q);
+                        const matchContact = deal.crm_contacts?.name?.toLowerCase().includes(q);
+                        const matchPhone = deal.crm_contacts?.phone?.includes(filterSearch);
+                        if (!matchTitle && !matchContact && !matchPhone) return false;
+                      }
+                      return true;
+                    })
+                    .sort((a, b) => a.position - b.position);
 
-              return (
-                <div key={stage.id} className="flex flex-col w-80 shrink-0 bg-white/[0.02] rounded-2xl border border-white/5 p-4 group/stage">
-                  {/* Stage Header */}
-                  <div className="flex items-center justify-between mb-4 px-1">
-                    <div className="flex items-center space-x-2">
-                      <h3 className="font-semibold text-sm text-white/80">{stage.name}</h3>
-                      <span className="bg-white/5 text-white/30 text-[10px] px-1.5 py-0.5 rounded-full border border-white/5">
-                        {stageDeals.length}
-                      </span>
-                    </div>
-                    <button className="text-white/20 hover:text-white transition-colors opacity-0 group-hover/stage:opacity-100">
-                      <MoreVertical size={14} />
-                    </button>
-                  </div>
+                  return (
+                    <div key={stage.id} className="flex flex-col w-80 shrink-0 bg-white/[0.02] rounded-2xl border border-white/5 p-4 group/stage">
+                      {/* Stage Header */}
+                      <div className="flex items-center justify-between mb-4 px-1">
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-semibold text-sm text-white/80">{stage.name}</h3>
+                          <span className="bg-white/5 text-white/30 text-[10px] px-1.5 py-0.5 rounded-full border border-white/5">
+                            {stageDeals.length}
+                          </span>
+                        </div>
+                        <button className="text-white/20 hover:text-white transition-colors opacity-0 group-hover/stage:opacity-100">
+                          <MoreVertical size={14} />
+                        </button>
+                      </div>
 
-                  {/* Cards Container */}
-                  <Droppable droppableId={stage.id}>
-                    {(provided, snapshot) => (
-                      <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className={`flex-1 flex flex-col gap-3 min-h-[100px] pb-10 transition-colors rounded-xl ${snapshot.isDraggingOver ? "bg-[var(--accent)]/5" : ""}`}
-                      >
-                        {stageDeals.map((deal, index) => {
-                          const statusCfg = STATUS_CONFIG[deal.status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.open;
-                          const StatusIcon = statusCfg.icon;
-                          const contact = deal.crm_contacts;
+                      {/* Cards Container */}
+                      <Droppable droppableId={stage.id}>
+                        {(provided, snapshot) => (
+                          <div
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                            className={`flex-1 flex flex-col gap-3 min-h-[100px] pb-10 transition-colors rounded-xl ${snapshot.isDraggingOver ? "bg-[var(--accent)]/5" : ""}`}
+                          >
+                            {stageDeals.map((deal, index) => {
+                              const statusCfg = STATUS_CONFIG[deal.status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.open;
+                              const StatusIcon = statusCfg.icon;
+                              const contact = deal.crm_contacts;
 
-                          return (
-                            <Draggable key={deal.id} draggableId={deal.id} index={index}>
-                              {(provided, snapshot) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  onClick={() => setDrawerDeal(deal)}
-                                  className={`
+                              return (
+                                <Draggable key={deal.id} draggableId={deal.id} index={index}>
+                                  {(provided, snapshot) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      onClick={() => setDrawerDeal(deal)}
+                                      className={`
                                     bg-[#141414] border border-white/5 p-4 rounded-xl shadow-xl transition-all
                                     hover:border-white/20 group/card relative cursor-pointer
                                     ${snapshot.isDragging ? "rotate-2 scale-105 border-[var(--accent)] shadow-[var(--accent)]/10 z-50" : ""}
                                   `}
-                                >
-                                  {/* Title row */}
-                                  <div className="flex justify-between items-start mb-2">
-                                    <h4 className="text-sm font-medium text-white group-hover/card:text-[var(--accent)] transition-colors line-clamp-2 pr-2">
-                                      {deal.title}
-                                    </h4>
-                                    <div className="flex items-center gap-0.5 opacity-0 group-hover/card:opacity-100 shrink-0">
-                                      <button
-                                        onPointerDown={e => e.stopPropagation()}
-                                        onClick={e => { e.stopPropagation(); setEditModal({ show: true, deal }); }}
-                                        className="p-1 text-white/20 hover:text-[var(--accent)] transition-colors"
-                                        title="Editar"
-                                      >
-                                        <Pencil size={12} />
-                                      </button>
-                                      <button
-                                        onPointerDown={e => e.stopPropagation()}
-                                        onClick={e => { e.stopPropagation(); setDeleteModal({ show: true, deal }); }}
-                                        className="p-1 text-white/20 hover:text-rose-400 transition-colors"
-                                        title="Excluir"
-                                      >
-                                        <Trash2 size={12} />
-                                      </button>
-                                    </div>
-                                  </div>
+                                    >
+                                      {/* Title row */}
+                                      <div className="flex justify-between items-start mb-2">
+                                        <h4 className="text-sm font-medium text-white group-hover/card:text-[var(--accent)] transition-colors line-clamp-2 pr-2">
+                                          {deal.title}
+                                        </h4>
+                                        <div className="flex items-center gap-0.5 opacity-0 group-hover/card:opacity-100 shrink-0">
+                                          <button
+                                            onPointerDown={e => e.stopPropagation()}
+                                            onClick={e => { e.stopPropagation(); setEditModal({ show: true, deal }); }}
+                                            className="p-1 text-white/20 hover:text-[var(--accent)] transition-colors"
+                                            title="Editar"
+                                          >
+                                            <Pencil size={12} />
+                                          </button>
+                                          <button
+                                            onPointerDown={e => e.stopPropagation()}
+                                            onClick={e => { e.stopPropagation(); setDeleteModal({ show: true, deal }); }}
+                                            className="p-1 text-white/20 hover:text-rose-400 transition-colors"
+                                            title="Excluir"
+                                          >
+                                            <Trash2 size={12} />
+                                          </button>
+                                        </div>
+                                      </div>
 
-                                  {/* Contact badge */}
-                                  {contact && (
-                                    <div className="flex items-center gap-1.5 mb-3">
-                                      <User size={10} className="text-white/30 shrink-0" />
-                                      <span className="text-[11px] text-white/40 truncate">{contact.name}</span>
+                                      {/* Contact badge */}
+                                      {contact && (
+                                        <div className="flex items-center gap-1.5 mb-3">
+                                          <User size={10} className="text-white/30 shrink-0" />
+                                          <span className="text-[11px] text-white/40 truncate">{contact.name}</span>
+                                        </div>
+                                      )}
+
+                                      {/* Value + Status */}
+                                      <div className="flex items-center justify-between mt-3">
+                                        <div className="flex items-center space-x-1 text-emerald-400 font-bold text-[13px]">
+                                          <DollarSign size={13} strokeWidth={3} />
+                                          <span>{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(deal.value || 0)}</span>
+                                        </div>
+
+                                        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[10px] font-semibold ${statusCfg.color} ${statusCfg.border} ${statusCfg.bg}`}>
+                                          <StatusIcon size={10} />
+                                          {statusCfg.label}
+                                        </div>
+                                      </div>
+
+                                      {/* Footer */}
+                                      <div className="mt-3 pt-3 border-t border-white/[0.03] flex items-center text-[10px] text-white/20">
+                                        <div className="flex items-center space-x-1">
+                                          <Calendar size={10} />
+                                          <span>{new Date(deal.created_at).toLocaleDateString("pt-BR")}</span>
+                                        </div>
+                                      </div>
                                     </div>
                                   )}
+                                </Draggable>
+                              );
+                            })}
 
-                                  {/* Value + Status */}
-                                  <div className="flex items-center justify-between mt-3">
-                                    <div className="flex items-center space-x-1 text-emerald-400 font-bold text-[13px]">
-                                      <DollarSign size={13} strokeWidth={3} />
-                                      <span>{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(deal.value || 0)}</span>
-                                    </div>
+                            <button
+                              className="w-full py-2 border border-dashed border-white/5 rounded-xl text-[11px] text-white/10 hover:text-[var(--accent)] hover:border-[var(--accent)]/20 hover:bg-[var(--accent)]/5 transition-all mt-2 flex items-center justify-center space-x-2"
+                              onClick={() => setCreateModal({ show: true, stageId: stage.id })}
+                            >
+                              <Plus size={12} />
+                              <span>Novo Card</span>
+                            </button>
 
-                                    <div className={`flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[10px] font-semibold ${statusCfg.color} ${statusCfg.border} ${statusCfg.bg}`}>
-                                      <StatusIcon size={10} />
-                                      {statusCfg.label}
-                                    </div>
-                                  </div>
-
-                                  {/* Footer */}
-                                  <div className="mt-3 pt-3 border-t border-white/[0.03] flex items-center text-[10px] text-white/20">
-                                    <div className="flex items-center space-x-1">
-                                      <Calendar size={10} />
-                                      <span>{new Date(deal.created_at).toLocaleDateString("pt-BR")}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </Draggable>
-                          );
-                        })}
-
-                        <button
-                          className="w-full py-2 border border-dashed border-white/5 rounded-xl text-[11px] text-white/10 hover:text-[var(--accent)] hover:border-[var(--accent)]/20 hover:bg-[var(--accent)]/5 transition-all mt-2 flex items-center justify-center space-x-2"
-                          onClick={() => setCreateModal({ show: true, stageId: stage.id })}
-                        >
-                          <Plus size={12} />
-                          <span>Novo Card</span>
-                        </button>
-
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </div>
-              );
-            })}
-          </div>
-        </DragDropContext>
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
+                  );
+                })}
+              </div>
+            </DragDropContext>
           </motion.div>
         )}
       </AnimatePresence>
@@ -812,3 +815,4 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
     </div>
   );
 }
+

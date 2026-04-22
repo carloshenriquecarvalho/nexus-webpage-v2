@@ -20,4 +20,5 @@ export interface Bill {
   google_event_id?: string | null;
   cost_center?: string | null;
   pdf_url?: string | null;
+  recurrent_group_id?: string | null;
 }

@@ -315,6 +315,19 @@ export async function createPipeline(name: string, companyId: string) {
 
   if (sError) return { success: false, error: sError };
 
+  // Buscar novamente o pipeline com os stages criados para retornar ao front
+  const { data: fullPipeline, error: fError } = await supabase
+    .from('crm_pipelines')
+    .select(`
+      *,
+      crm_stages (*)
+    `)
+    .eq('id', pipeline.id)
+    .single();
+
+  if (fError) return { success: false, error: fError };
+
   revalidatePath('/crm');
-  return { success: true, data: pipeline };
+  return { success: true, data: fullPipeline };
 }
+

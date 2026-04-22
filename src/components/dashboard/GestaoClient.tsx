@@ -33,11 +33,12 @@ export function GestaoClient({
   createCompanyAction, updateCompanyAction, deleteCompanyAction,
   createBillAction, updateBillAction, deleteBillAction,
 }: GestaoClientProps) {
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(companies[0]?.id ?? null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>(companies[0]?.id ?? "");
   const [showCompanyForm, setShowCompanyForm] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | undefined>();
   const [editingBill, setEditingBill] = useState<Bill | undefined>();
   const [viewingBill, setViewingBill] = useState<Bill | undefined>();
+  const [showBillForm, setShowBillForm] = useState(false);
 
   // Filtros
   const [startDate, setStartDate] = useState<string>("");
@@ -53,6 +54,23 @@ export function GestaoClient({
       ...b,
       status: getEffectiveStatus(b)
     }));
+
+    // Filtro de Visibilidade Mensal: Só mostrar boletos do mês atual ou meses passados
+    list = list.filter(b => {
+      if (b.status === "Paga") return true;
+      if (!b.overdue_date) return true;
+      
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth(); // 0-11
+      const [bYear, bMonth] = b.overdue_date.split("-").map(Number);
+      
+      if (bYear < currentYear) return true;
+      if (bYear === currentYear && (bMonth - 1) <= currentMonth) return true;
+      
+      return false; 
+    });
+
 
     // Filtro por período
     list = filterBillsByDate(list, startDate, endDate);
@@ -99,15 +117,28 @@ export function GestaoClient({
             </h1>
           </div>
 
-          <motion.button
-            onClick={() => { setEditingCompany(undefined); setShowCompanyForm(true); }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="cursor-pointer flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#F24639] to-[#F22471] text-white font-bold text-sm shadow-[0_15px_30px_-10px_rgba(242,36,113,0.3)] hover:shadow-[0_15px_40px_-5px_rgba(242,36,113,0.5)] transition-all flex-shrink-0"
-          >
-            <Plus size={16} />
-            <span>Nova Empresa</span>
-          </motion.button>
+          <div className="flex items-center gap-3">
+            <motion.button
+              onClick={() => { setEditingCompany(undefined); setShowCompanyForm(true); }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="cursor-pointer flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all text-xs font-bold uppercase tracking-wider"
+            >
+              <Plus size={14} />
+              <span>Empresa</span>
+            </motion.button>
+
+            <motion.button
+              onClick={() => setShowBillForm(true)}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              disabled={!selectedCompany}
+              className="cursor-pointer flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#F24639] to-[#F22471] text-white font-bold text-xs uppercase tracking-wider shadow-[0_15px_30px_-10px_rgba(242,36,113,0.3)] hover:shadow-[0_15px_40px_-5px_rgba(242,36,113,0.5)] transition-all flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Plus size={14} />
+              <span>Novo Boleto</span>
+            </motion.button>
+          </div>
         </div>
 
         {/* Unified Filter Toolbar */}
@@ -267,11 +298,41 @@ export function GestaoClient({
           </AnimatePresence>
         </div>
 
-        {/* Right: Form */}
-        <div className="lg:col-span-5 lg:sticky lg:top-10 h-fit">
-          {selectedCompany ? (
-            <BillForm companyId={selectedCompany.id} createAction={createBillAction} />
-          ) : (
+        {/* Right: Metrics / Info */}
+        <div className="lg:col-span-5 lg:sticky lg:top-10 h-fit space-y-6">
+          <div className="bg-[#111111] border border-white/8 rounded-[2.5rem] p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center">
+                <TrendingUp size={18} className="text-[var(--accent)]" />
+              </div>
+              <h3 className="font-bold text-white uppercase text-[10px] tracking-widest text-white/40">Resumo da Empresa</h3>
+            </div>
+            
+            {selectedCompany ? (
+              <div className="space-y-4">
+                <div>
+                  <p className="text-[10px] text-white/30 uppercase tracking-widest mb-1">Total em Aberto</p>
+                  <p className="text-2xl font-bold text-white tracking-tight">
+                    {formatCurrency(totalAmountFor(selectedCompany.id))}
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-white/5 grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-[10px] text-white/30 uppercase tracking-widest mb-1">Lançamentos</p>
+                    <p className="text-lg font-bold text-white">{billCountFor(selectedCompany.id)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-white/30 uppercase tracking-widest mb-1">Pendentes</p>
+                    <p className="text-lg font-bold text-amber-400">{pendingCountFor(selectedCompany.id)}</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-white/20 text-xs italic">Selecione uma empresa para ver detalhes.</p>
+            )}
+          </div>
+
+          {!selectedCompany && (
             <div className="bg-[#111111] border border-dashed border-white/10 rounded-[2.5rem] p-12 text-center">
               <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
                 <Receipt size={24} className="text-white/20" />
@@ -284,6 +345,30 @@ export function GestaoClient({
 
       {/* Modals */}
       <AnimatePresence>
+        {showBillForm && selectedCompany && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setShowBillForm(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-xl z-10 max-h-[90vh] overflow-y-auto scrollbar-hide rounded-3xl"
+            >
+              <BillForm 
+                companyId={selectedCompany.id} 
+                createAction={createBillAction} 
+                onClose={() => setShowBillForm(false)}
+              />
+            </motion.div>
+
+          </div>
+        )}
         {showCompanyForm && (
           <CompanyForm
             key="company-form"
