@@ -31,6 +31,7 @@ export interface DrawerDeal {
   assigned_to: string | null;
   company_id: string;
   created_at: string;
+  description?: string | null;
   crm_contacts?: Contact | null;
 }
 
@@ -61,6 +62,7 @@ export default function DealDrawer({ deal, contacts, onClose, onDealUpdate }: De
   const [value, setValue]         = useState(deal.value.toString());
   const [status, setStatus]       = useState(deal.status);
   const [contactId, setContactId] = useState(deal.contact_id ?? "");
+  const [description, setDescription] = useState(deal.description ?? "");
 
   // Notes state
   const [notes, setNotes]             = useState<DealNote[]>([]);
@@ -91,10 +93,11 @@ export default function DealDrawer({ deal, contacts, onClose, onDealUpdate }: De
         value: parsedValue,
         status,
         contact_id: contactId || null,
+        description: description.trim() || null,
       });
       if (res.success && res.data) {
         const contact = contactId ? contacts.find(c => c.id === contactId) ?? null : null;
-        onDealUpdate({ ...deal, title: title.trim(), value: parsedValue, status, contact_id: contactId || null, crm_contacts: contact });
+        onDealUpdate({ ...deal, title: title.trim(), value: parsedValue, status, description: description.trim() || null, contact_id: contactId || null, crm_contacts: contact });
         toast.success("Deal atualizado!");
         setIsEditingDetails(false);
       } else {
@@ -387,6 +390,29 @@ export default function DealDrawer({ deal, contacts, onClose, onDealUpdate }: De
                   )}
                 </section>
 
+                {/* Descrição */}
+                <section>
+                  <p className="text-[10px] font-bold text-white/25 uppercase tracking-widest mb-2">Descrição / Notas</p>
+                  {isEditingDetails ? (
+                    <textarea
+                      value={description}
+                      onChange={e => setDescription(e.target.value)}
+                      rows={4}
+                      placeholder="Adicione um contexto importante sobre este deal..."
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 transition-all font-medium whitespace-pre-wrap"
+                    />
+                  ) : description ? (
+                    <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-sm text-white/70 whitespace-pre-wrap leading-relaxed">
+                      {description}
+                    </div>
+                  ) : (
+                    <div className="bg-white/[0.02] border border-dashed border-white/5 rounded-2xl p-4 text-center">
+                      <FileText size={20} className="text-white/10 mx-auto mb-1" />
+                      <p className="text-white/20 text-xs">Nenhuma descrição adicionada</p>
+                    </div>
+                  )}
+                </section>
+
                 {/* Save / Cancel */}
                 {isEditingDetails && (
                   <div className="flex gap-3 pt-2">
@@ -395,6 +421,7 @@ export default function DealDrawer({ deal, contacts, onClose, onDealUpdate }: De
                         setTitle(deal.title);
                         setValue(deal.value.toString());
                         setStatus(deal.status);
+                        setDescription(deal.description ?? "");
                         setContactId(deal.contact_id ?? "");
                         setIsEditingDetails(false);
                       }}

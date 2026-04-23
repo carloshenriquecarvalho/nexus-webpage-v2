@@ -34,6 +34,7 @@ interface Deal {
   assigned_to: string | null;
   company_id: string;
   created_at: string;
+  description?: string | null;
   crm_contacts?: Contact | null;
 }
 
@@ -61,7 +62,7 @@ interface DealModalProps {
   isPending: boolean;
   onClose: () => void;
   onSubmit: (data: {
-    title: string; value: number; status: string; contact_id: string | null;
+    title: string; value: number; status: string; contact_id: string | null; description: string | null;
   }) => void;
 }
 
@@ -70,6 +71,7 @@ function DealModal({ mode, deal, contacts, isPending, onClose, onSubmit }: DealM
   const [value, setValue] = useState(deal?.value?.toString() ?? "");
   const [status, setStatus] = useState(deal?.status ?? "open");
   const [contactId, setContactId] = useState(deal?.contact_id ?? "");
+  const [description, setDescription] = useState(deal?.description ?? "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,6 +82,7 @@ function DealModal({ mode, deal, contacts, isPending, onClose, onSubmit }: DealM
       value: parsedValue,
       status,
       contact_id: contactId || null,
+      description: description.trim() || null,
     });
   };
 
@@ -156,6 +159,20 @@ function DealModal({ mode, deal, contacts, isPending, onClose, onSubmit }: DealM
                 className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-5 py-3.5 text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 transition-all font-bold text-lg"
               />
             </div>
+          </div>
+
+          {/* Descrição/Notas */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest ml-1">
+              Descrição / Notas Iniciais
+            </label>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={3}
+              placeholder="Adicione um contexto ou anotação importante para este deal..."
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 transition-all text-sm resize-none"
+            />
           </div>
 
           {/* Status */}
@@ -433,7 +450,7 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
   };
 
   // ── Criar Deal ──
-  const handleCreateDeal = (data: { title: string; value: number; status: string; contact_id: string | null }) => {
+  const handleCreateDeal = (data: { title: string; value: number; status: string; contact_id: string | null; description: string | null; }) => {
     if (!createModal.stageId) return;
     startTransition(async () => {
       const res = await createDeal({
@@ -442,6 +459,7 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
         stage_id: createModal.stageId!,
         company_id: companyId,
         contact_id: data.contact_id ?? undefined,
+        description: data.description,
       });
       if (res.success && res.data) {
         const contact = data.contact_id ? contacts.find(c => c.id === data.contact_id) ?? null : null;
@@ -455,7 +473,7 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
   };
 
   // ── Editar Deal ──
-  const handleEditDeal = (data: { title: string; value: number; status: string; contact_id: string | null }) => {
+  const handleEditDeal = (data: { title: string; value: number; status: string; contact_id: string | null; description: string | null; }) => {
     if (!editModal.deal) return;
     const dealId = editModal.deal.id;
     startTransition(async () => {

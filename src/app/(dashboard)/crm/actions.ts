@@ -161,6 +161,7 @@ export async function createDeal(data: {
   company_id: string;
   contact_id?: string;
   assigned_to?: string;
+  description?: string | null;
 }) {
   const supabase = await createClient();
   
@@ -195,6 +196,7 @@ export async function updateDeal(dealId: string, data: {
   value: number;
   status: string;
   contact_id: string | null;
+  description?: string | null;
 }) {
   const supabase = await createClient();
   const { data: updated, error } = await supabase
