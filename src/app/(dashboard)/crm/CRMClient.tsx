@@ -492,31 +492,31 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <header className="p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0d0d0d]/50 backdrop-blur-xl sticky top-0 z-10">
-        <div className="flex items-center gap-4">
+      <header className="p-4 md:p-6 border-b border-white/5 flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-[#0d0d0d]/50 backdrop-blur-xl sticky top-0 z-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full xl:w-auto">
           {/* Tab Switcher */}
-          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1">
+          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1 w-full sm:w-auto shrink-0">
             <button
               onClick={() => setActiveTab("kanban")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "kanban"
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "kanban"
                   ? "bg-white/10 text-white shadow"
                   : "text-white/30 hover:text-white/60"
                 }`}
             >
-              <Kanban size={15} />
+              <Kanban size={15} className="shrink-0" />
               Kanban
             </button>
             <button
               onClick={() => setActiveTab("contacts")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "contacts"
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "contacts"
                   ? "bg-white/10 text-white shadow"
                   : "text-white/30 hover:text-white/60"
                 }`}
             >
-              <Users size={15} />
+              <Users size={15} className="shrink-0" />
               Contatos
               {contacts.length > 0 && (
-                <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded-full text-white/50">
+                <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded-full text-white/50 shrink-0">
                   {contacts.length}
                 </span>
               )}
@@ -525,19 +525,19 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
 
           {/* Pipeline selector (only on kanban tab) */}
           {activeTab === "kanban" && (
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2 bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center space-x-2 bg-white/5 border border-white/10 rounded-xl overflow-hidden flex-1 sm:flex-none">
                 <select
                   value={activePipelineId || ""}
                   onChange={e => setActivePipelineId(e.target.value)}
-                  className="bg-transparent pl-4 py-2 text-sm font-medium focus:ring-0 outline-none appearance-none cursor-pointer pr-10 min-w-[200px]"
+                  className="bg-transparent pl-4 py-2 text-sm font-medium focus:ring-0 outline-none appearance-none cursor-pointer pr-10 w-full sm:min-w-[200px]"
                 >
                   {pipelines.map(p => (
                     <option key={p.id} value={p.id} className="bg-[#1a1a1a]">{p.name}</option>
                   ))}
                 </select>
                 {activePipeline && (
-                  <div className="flex items-center border-l border-white/10 pl-1 pr-1">
+                  <div className="flex items-center border-l border-white/10 pl-1 pr-1 shrink-0">
                     <button
                       onClick={() => setEditPipelineModal({ show: true, pipeline: activePipeline })}
                       className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
@@ -557,7 +557,7 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
               </div>
               <button
                 onClick={() => setShowPipelineModal(true)}
-                className="p-2.5 rounded-xl bg-white/5 hover:bg-[var(--accent)] hover:text-black border border-white/10 hover:border-[var(--accent)] transition-all text-white/60"
+                className="p-2.5 rounded-xl bg-white/5 hover:bg-[var(--accent)] hover:text-black border border-white/10 hover:border-[var(--accent)] transition-all text-white/60 shrink-0"
                 title="Novo Funil"
               >
                 <Plus size={18} />
@@ -568,16 +568,16 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
 
         {/* Right side — only on kanban */}
         {activeTab === "kanban" && (
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap w-full xl:w-auto">
             {/* Search */}
-            <div className="relative group">
+            <div className="relative group w-full sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[var(--accent)] transition-colors" size={15} />
               <input
                 type="text"
                 value={filterSearch}
                 onChange={e => setFilterSearch(e.target.value)}
                 placeholder="Buscar por título ou contato..."
-                className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm focus:ring-2 focus:ring-[var(--accent)] outline-none w-56 transition-all"
+                className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm focus:ring-2 focus:ring-[var(--accent)] outline-none w-full sm:w-56 transition-all"
               />
               {filterSearch && (
                 <button onClick={() => setFilterSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white">
@@ -587,34 +587,36 @@ export default function CRMClient({ initialPipelines, initialDeals, initialConta
             </div>
 
             {/* Status chips */}
-            {(["open", "won", "lost"] as const).map(s => {
-              const cfg = STATUS_CONFIG[s];
-              const Icon = cfg.icon;
-              const active = filterStatus === s;
-              return (
-                <button
-                  key={s}
-                  onClick={() => setFilterStatus(active ? null : s)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-semibold transition-all ${active
-                      ? `${cfg.color} ${cfg.border} ${cfg.bg}`
-                      : "text-white/25 border-white/5 hover:border-white/15 hover:text-white/50"
-                    }`}
-                >
-                  <Icon size={11} />
-                  {cfg.label}
-                </button>
-              );
-            })}
+            <div className="flex items-center gap-2 flex-wrap">
+              {(["open", "won", "lost"] as const).map(s => {
+                const cfg = STATUS_CONFIG[s];
+                const Icon = cfg.icon;
+                const active = filterStatus === s;
+                return (
+                  <button
+                    key={s}
+                    onClick={() => setFilterStatus(active ? null : s)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-semibold transition-all ${active
+                        ? `${cfg.color} ${cfg.border} ${cfg.bg}`
+                        : "text-white/25 border-white/5 hover:border-white/15 hover:text-white/50"
+                      }`}
+                  >
+                    <Icon size={11} />
+                    {cfg.label}
+                  </button>
+                );
+              })}
 
-            {/* Clear all filters */}
-            {(filterSearch || filterStatus) && (
-              <button
-                onClick={() => { setFilterSearch(""); setFilterStatus(null); }}
-                className="text-[11px] text-white/25 hover:text-rose-400 transition-colors px-1"
-              >
-                Limpar
-              </button>
-            )}
+              {/* Clear all filters */}
+              {(filterSearch || filterStatus) && (
+                <button
+                  onClick={() => { setFilterSearch(""); setFilterStatus(null); }}
+                  className="text-[11px] text-white/25 hover:text-rose-400 transition-colors px-1"
+                >
+                  Limpar
+                </button>
+              )}
+            </div>
           </div>
         )}
       </header>
